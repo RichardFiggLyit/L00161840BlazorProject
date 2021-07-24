@@ -1,5 +1,7 @@
 ﻿using L00161840BlazorProject.Server.Helpers;
 using L00161840BlazorProject.Shared.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
@@ -21,6 +23,7 @@ namespace L00161840BlazorProject.Server.Controllers
             emailConfiguration = options.Value;
         }
         [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public void Put(MailRequest mail)
         {
 

@@ -1,10 +1,10 @@
 ﻿@page "/company"
 @inject ICompanyRepository companyRepository
 <h1>Counter</h1>
-
+<p></p>
 <p>Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="DisplayCompanyId">Click me</button>
 <button class="btn btn-primary" @onclick="GetCompany">Click me</button>
 @if (company == null)
 {
@@ -12,19 +12,32 @@
 }
 else
 {
-    <div>
-        <h3>Name:@company.Name</h3>
-    </div>
+<div>
+    <h3>Name:@company.Name</h3>
+    <p>Company Id:@companyId</p>
+</div>
 }
 
 
 @code {
     private int currentCount = 0;
     private Company company = new Company();
+    private int companyId = 0;
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
     private void IncrementCount()
     {
+
+
         currentCount++;
     }
+    private async Task DisplayCompanyId()
+    {
+        var authState = await AuthenticationState;
+        var user = authState.User;
+        var companyValue = user.Claims.Where(x => x.Type == "Company").FirstOrDefault()?.Value;
+        int.TryParse(companyValue, out companyId);
+    }
+
     private async Task GetCompany()
     {
 

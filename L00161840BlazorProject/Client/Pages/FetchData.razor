@@ -1,6 +1,7 @@
 ﻿@page "/fetchdata"
 @using L00161840BlazorProject.Shared
 @inject HttpClient Http
+@attribute [Authorize(Roles ="Admin")]
 
 <h1>Weather forecast</h1>
 
