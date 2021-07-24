@@ -31,6 +31,8 @@ namespace L00161840BlazorProject.Client
             services.AddScoped<IHttpService, HttpService>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
+            services.AddScoped<IEmailService, EmailService>();
+
         }
     }
 }
