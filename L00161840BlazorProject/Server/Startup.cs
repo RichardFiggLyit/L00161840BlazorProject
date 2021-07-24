@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using L00161840BlazorProject.Server.Helpers;
 
 namespace L00161840BlazorProject.Server
 {
@@ -25,6 +26,7 @@ namespace L00161840BlazorProject.Server
         {
             services.AddDbContext<ApplicationDbContext>(options => 
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.Configure<EmailConfiguration>(Configuration.GetSection("MailSettings"));
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
