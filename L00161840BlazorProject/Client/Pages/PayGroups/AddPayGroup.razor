@@ -1,0 +1,23 @@
+﻿@page "/paygroups/add"
+@inject IPayGroupRepository payGroupRepository
+
+@inject NavigationManager navigationManager
+@attribute [Authorize (Roles = "Admin")]
+
+<h3>Add Pay Group</h3>
+
+    <PayGroupForm PayGroup="PayGroup"  OnValidSubmit="Add" />
+
+
+@code {
+
+
+    PayGroup PayGroup = new PayGroup();
+
+
+    private async Task Add()
+    {
+        await payGroupRepository.CreatePayGroup(PayGroup);
+        navigationManager.NavigateTo("company");
+    }
+}

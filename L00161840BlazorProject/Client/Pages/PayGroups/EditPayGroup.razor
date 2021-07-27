@@ -1,0 +1,31 @@
+﻿@page "/paygroups/edit/{PayGroupId:int}"
+@inject IPayGroupRepository payGroupRepository
+
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Edit Pay Group</h3>
+@if (PayGroup!= null)
+{
+<PayGroupForm PayGroup="PayGroup" OnValidSubmit="Edit" />
+}
+
+
+@code {
+
+
+    [Parameter] public int PayGroupId { get; set; }
+    public PayGroup PayGroup;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PayGroup = await payGroupRepository.GetPayGroupById(PayGroupId);
+    }
+
+    private async Task Edit()
+    {
+        await payGroupRepository.UpdatePayGroup(PayGroup);
+        navigationManager.NavigateTo("company");
+    }
+
+}

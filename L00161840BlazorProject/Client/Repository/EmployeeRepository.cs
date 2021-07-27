@@ -11,7 +11,7 @@ namespace L00161840BlazorProject.Client.Repository
     public class EmployeeRepository : IEmployeeRepository
     {
         private readonly IHttpService httpService;
-        private string url = "api/employee";
+        private string url = "api/employees";
 
         public EmployeeRepository(IHttpService httpService)
         {

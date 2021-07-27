@@ -21,7 +21,5 @@ namespace L00161840BlazorProject.Shared.Entities
         public string Address5 { get; set; }
         public string AdminEmail { get; set; }
         public string Phone { get; set; }
-        public List<Employee> Employees { get; set; } = new List<Employee>();
-        public List<PayGroup> PayGroups { get; set; } = new List<PayGroup>();
     }
 }

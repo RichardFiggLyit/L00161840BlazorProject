@@ -1,0 +1,7 @@
+﻿<InputFile OnChange="@OnInputFileChange" class="btn btn-primary" />
+
+@code
+{
+    [Parameter]
+    public EventCallback<List<string[]>> CSVConverted { get; set; }
+}

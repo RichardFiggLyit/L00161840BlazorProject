@@ -2,11 +2,34 @@
 
 @inject ICompanyRepository companyRepository
 @inject IEmailService emailService
+@inject IInviteRepository inviteService
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
-<button class="btn btn-primary" @onclick="SendEmail">Click me</button>
-<SurveyPrompt Title="How is Blazor working for you?" />
+<button class="btn btn-primary" @onclick="CreateInvite">Create Invite</button>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div>
+            You are authorized, @context.User.Identity.Name<br /><br />
+            <button class="btn btn-primary" @onclick="CreateInvite">Create Invite</button>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <SurveyPrompt Title="How is Blazor working for you?" />
+    </NotAuthorized>
+</AuthorizeView>
+<AuthorizeView Roles="Employee">
+    <Authorized>
+        <div>
+            You are authorized, @context.User.Identity.Name<br />
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <SurveyPrompt Title="How is Blazor working for you?" />
+    </NotAuthorized>
+</AuthorizeView>
+
+
 
 @code{
     private async Task SendEmail()
@@ -14,4 +37,18 @@ Welcome to your new app.
         await emailService.SendEmail("info@portal.com","test@employee.com","Test Subject","Test body");
 
     }
+    private async Task CreateInvite()
+    {
+        Invite invite = new Invite()
+        {
+            EmployeeId = 1,
+            IsAdmin = false
+        };
+        var inviteReturn = await inviteService.CreateInvite(invite);
+
+    }
+
+
+
+
 }

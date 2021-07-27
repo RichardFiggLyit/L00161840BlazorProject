@@ -9,11 +9,14 @@ using L00161840BlazorProject.Server;
 using L00161840BlazorProject.Shared.Entities;
 using L00161840BlazorProject.Shared.DTOs;
 using L00161840BlazorProject.Server.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace L00161840BlazorProject.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public class EmployeesController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -33,12 +36,14 @@ namespace L00161840BlazorProject.Server.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Employee>> Get(int id)
         {
             var employee = await context.Employees.FirstOrDefaultAsync(x => x.Id == id);
             if (employee == null) { return NotFound(); }
             return employee;
         }
+
 
         [HttpGet("search/{searchText}")]
         public async Task<ActionResult<List<Employee>>> FilterByName(string searchText)
@@ -59,6 +64,7 @@ namespace L00161840BlazorProject.Server.Controllers
         }
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Put(Employee employee)
         {
             var EmployeeDB = await context.Employees.FirstOrDefaultAsync(x => x.Id == employee.Id);

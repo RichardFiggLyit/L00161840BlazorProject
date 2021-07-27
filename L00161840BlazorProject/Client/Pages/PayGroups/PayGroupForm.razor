@@ -1,0 +1,26 @@
+﻿<EditForm Model="PayGroup" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Name:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@PayGroup.Name" />
+            <ValidationMessage For="@(() => PayGroup.Name)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Period:</label>
+        <InputSelect @bind-Value="PayGroup.Period">
+            @foreach (var period in Enum.GetValues(typeof(Period)))
+            {
+                <option value="@period">@period</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button class="btn btn-success" type="submit">Save Changes</button>
+</EditForm>
+
+@code {
+    [Parameter] public PayGroup PayGroup { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

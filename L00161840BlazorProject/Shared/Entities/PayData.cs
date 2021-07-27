@@ -13,6 +13,8 @@ namespace L00161840BlazorProject.Shared.Entities
         public PayPeriod PayPeriod { get; set; }
         public int EmployeeId { get; set; }
         public Employee Employee { get; set; }
+        public double BasicHours { get; set; }
+        public double BasicRate { get; set; }
         public double Gross { get; set; }
         public double Net { get; set; }
         public double PAYE { get; set; }

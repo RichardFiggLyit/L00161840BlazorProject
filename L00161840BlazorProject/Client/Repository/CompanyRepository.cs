@@ -19,34 +19,14 @@ namespace L00161840BlazorProject.Client.Repository
             this.httpService = httpService;
         }
 
-        public async Task<List<Company>> GetCompany()
+
+
+        public async Task<Company> GetCompany()
         {
-            return await httpService.GetHelper<List<Company>>(url);
+            return await httpService.GetHelper<Company>($"{url}");
         }
 
-        public async Task<List<Company>> GetCompanyByName(string name)
-        {
-            var response = await httpService.Get<List<Company>>($"{url}/search/{name}");
-            if (!response.Success)
-            {
-                throw new ApplicationException(await response.GetBody());
-            }
-            return response.Response;
-        }
 
-        public async Task<Company> GetCompanyById(int id)
-        {
-            return await httpService.GetHelper<Company>($"{url}/{id}");
-        }
-
-        public async Task CreateCompany(Company company)
-        {
-            var response = await httpService.Post(url, company);
-            if (!response.Success)
-            {
-                throw new ApplicationException(await response.GetBody());
-            }
-        }
 
         public async Task UpdateCompany(Company company)
         {
@@ -57,13 +37,6 @@ namespace L00161840BlazorProject.Client.Repository
             }
         }
 
-        public async Task DeleteCompany(int Id)
-        {
-            var response = await httpService.Delete($"{url}/{Id}");
-            if (!response.Success)
-            {
-                throw new ApplicationException(await response.GetBody());
-            }
-        }
+
     }
 }

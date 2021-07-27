@@ -25,57 +25,27 @@ namespace L00161840BlazorProject.Server.Controllers
 
         }
 
-        [HttpGet]
-        public async Task<List<Company>> Get()
-        {
-            var queryable = context.Companies.AsQueryable();
-            return await queryable.ToListAsync();
-        }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Company>> Get(int id)
+
+        [HttpGet]
+        public async Task<ActionResult<Company>> Get()
         {
-            var company = await context.Companies.FirstOrDefaultAsync(x => x.Id == id);
+            var company = await context.Companies.FirstOrDefaultAsync();
             if (company == null) { return NotFound(); }
             return company;
         }
 
 
-        [HttpPost]
-        public async Task<ActionResult<int>> Post(Company company)
-        {
 
-            context.Add(company);
-            await context.SaveChangesAsync();
-            return company.Id;
-        }
 
         [HttpPut]
         public async Task<ActionResult> Put(Company company)
         {
-            var CompanyDB = await context.Companies.FirstOrDefaultAsync(x => x.Id == company.Id);
-
-            if (CompanyDB == null) { return NotFound(); }
-
             context.Attach(company).State = EntityState.Modified;
-
             await context.SaveChangesAsync();
             return NoContent();
 
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var Company = await context.Companies.FirstOrDefaultAsync(x => x.Id == id);
-            if (Company == null)
-            {
-                return NotFound();
-            }
-
-            context.Remove(Company);
-            await context.SaveChangesAsync();
-            return NoContent();
-        }
     }
 }

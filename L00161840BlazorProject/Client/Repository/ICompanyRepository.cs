@@ -9,12 +9,9 @@ namespace L00161840BlazorProject.Client.Repository
 {
     interface ICompanyRepository
     {
-        Task CreateCompany(Company company);
-        Task DeleteCompany(int Id);
-        
-        Task<List<Company>> GetCompany();
-        Task<Company> GetCompanyById(int id);
-        Task<List<Company>> GetCompanyByName(string name);
+
+        Task<Company> GetCompany();
+
         Task UpdateCompany(Company company);
     }
 }

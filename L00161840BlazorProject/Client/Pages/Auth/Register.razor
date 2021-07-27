@@ -1,0 +1,76 @@
+﻿@page "/register"
+
+@inject IAccountsRepository accountsRepository
+@inject NavigationManager navigationManager
+@inject ILoginService loginService
+@inject IInviteRepository inviteService
+
+
+
+@using L00161840BlazorProject.Client.Auth
+
+@if (invite != null)
+{
+    <h3>Register</h3>
+
+    <EditForm Model="userInfo" OnValidSubmit="CreateUser">
+        <DataAnnotationsValidator />
+        <text>@invite.InviteReference @invite.Id</text>
+        <div class="form-group">
+            <label>Email:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@userInfo.Email" />
+                <ValidationMessage For="@(() => userInfo.Email)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Password:</label>
+            <div>
+                <InputPassword class="form-control" @bind-Value="@userInfo.Password" />
+                <ValidationMessage For="@(() => userInfo.Password)" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+
+    </EditForm>
+}
+else if (!IsValidating)
+{
+    <h3>Invalid Invite Id</h3>
+}
+else
+{
+    <h3>Validating</h3>
+}
+
+@code {
+    private UserInfo userInfo = new UserInfo();
+    private Invite invite = null;
+    private bool IsValidating = true;
+    protected override async Task OnInitializedAsync()
+    {
+        var dict = navigationManager.GetQueryStrings(navigationManager.Uri);
+        if (dict != null)
+        {
+            var inviteReference = dict.Where(x => x.Key == "InviteReference")?.FirstOrDefault().Value;
+
+                if (inviteReference != null)
+                {
+                    invite = await inviteService.GetInviteFromReference(inviteReference);
+
+                }
+            
+
+
+        }
+        IsValidating = false;
+    }
+    private async Task CreateUser()
+    {
+        var userToken = await accountsRepository.Register(userInfo);
+        await loginService.Login(userToken);
+        navigationManager.NavigateTo("");
+    }
+}

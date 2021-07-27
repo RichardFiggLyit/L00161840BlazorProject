@@ -1,0 +1,182 @@
+﻿@page "/payroll/import"
+
+@inject IPayGroupRepository payGroupRepository
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Payroll Import</h3>
+@if (PayGroups != null && PayGroups.Count ==0)
+            {
+                <h3>No paygroups have been set up</h3>
+            }
+@if (PayGroups != null)
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th>Pay Group</th>
+            <th>Tax Year</th>
+            <th>Tax Period</th>
+            <th>Pay Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <select @bind="payGroupId">
+                    <option value=0 >Select a Pay Group</option>
+                    @foreach (var payGroup in PayGroups)
+                    {
+                        <option value="@payGroup.Id">@payGroup.Name</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select @bind="currentYear">
+                    @foreach (var year in TaxYears)
+                    {
+                        <option value="@year">@year</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select @bind="payPeriod">
+                    @foreach (var period in Periods)
+                    {
+                        <option value="@period">@period</option>
+                    }
+                </select>
+            </td>
+
+            <td>
+                <input type="date" @bind="@payDate" min="2018-01-01" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+<br />
+<InputFile accept=".csv" OnChange="@OnInputFileChange" class="btn btn-primary" />
+<br />
+    if (headers != null)
+    {
+<h2>Map data headers</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Header</th>
+            <th>Item</th>
+            <th>Item</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var header in headers)
+        {
+        <tr>
+            <td>
+                <select @bind="payGroupId">
+                    <option value=0>Select a Pay Group</option>
+                    @foreach (var payGroup in PayGroups)
+                    {
+                        <option value="@payGroup.Id">@payGroup.Name</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select @bind="currentYear">
+                    @foreach (var year in TaxYears)
+                    {
+                        <option value="@year">@year</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select @bind="payPeriod">
+                    @foreach (var period in Periods)
+                    {
+                        <option value="@period">@period</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+    }
+
+}
+
+
+
+@code {
+
+    public List<string[]> csvData = new List<string[]>();
+    public List<string> headers;
+    public List<int> TaxYears = new List<int>();
+    public List<int> Periods = new List<int>() { 1 };
+
+
+    List<PayGroup> PayGroups;
+    List<PayItem> PayItems;
+    List<PayItem> PayItemsDB;
+    private int _payGroupId;
+    public int payGroupId
+    {
+        get { return _payGroupId; }
+        set
+        {
+            _payGroupId = value;
+            UpdateTaxPeriods();
+        }
+    }
+    int payPeriod = 1;
+    int currentYear = DateTime.Today.Year;
+    DateTime payDate = DateTime.Today;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        int initialYear = 2019;
+        for (int year = DateTime.Today.Year; year > initialYear - 1; year--)
+        {
+            TaxYears.Add(year);
+        }
+        PayGroups = await payGroupRepository.GetPayGroups();
+
+    }
+
+    private void UpdateTaxPeriods()
+    {
+
+        int totalPeriods = 0;
+        if (payGroupId == 0)
+        {
+            Periods = new List<int>() { 1 };
+        }
+        else
+        {
+            var payGroup = PayGroups.FirstOrDefault(x => x.Id == payGroupId);
+            switch (payGroup.Period)
+            {
+                case Period.Fortnightly:
+                    totalPeriods = 27;
+                    break;
+                case Period.FourWeekly:
+                    totalPeriods = 14;
+                    break;
+                case Period.Monthly:
+                    totalPeriods = 12;
+                    break;
+                default:
+                case Period.Weekly:
+                    totalPeriods = 53;
+                    break;
+            }
+            Periods = Enumerable.Range(1, totalPeriods).ToList();
+
+        }
+    }
+
+
+
+
+}
