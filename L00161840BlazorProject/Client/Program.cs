@@ -36,6 +36,9 @@ namespace L00161840BlazorProject.Client
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAccountsRepository, AccountsRepository>();
             services.AddScoped<IUsersRepository, UserRepository>();
+            services.AddScoped<IInviteRepository, InviteRepository>();
+            services.AddScoped<IPayGroupRepository, PayGroupRepository>();
+
             services.AddScoped<TokenRenewer>();
             services.AddAuthorizationCore();
 

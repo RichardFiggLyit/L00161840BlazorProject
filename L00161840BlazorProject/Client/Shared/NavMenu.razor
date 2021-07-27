@@ -8,37 +8,46 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
 
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="company">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
-    </ul>
-    <li class="nav-item px-3">
-        <NavLink class="nav-link" href="users">
-            <span class="oi oi-list-rich" aria-hidden="true"></span> Users
-        </NavLink>
-    </li>
-    <AuthorizeView Roles="Admin">
-        <Authorized>
+        <AuthorizeView>
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="counter">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="company">
+                        <span class="oi oi-briefcase" aria-hidden="true"></span> Company
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="payroll/import">
+                        <span class="oi oi-file" aria-hidden="true"></span> Payroll Import
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="users">
+                        <span class="oi oi-people" aria-hidden="true"></span> Users
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
 
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="users">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Users
-                </NavLink>
-            </li>
-        </Authorized>
-    </AuthorizeView>
+    </ul>
 
 </div>
 

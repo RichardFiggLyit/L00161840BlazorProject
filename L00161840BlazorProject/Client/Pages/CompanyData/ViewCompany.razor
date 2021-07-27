@@ -1,0 +1,92 @@
+﻿@page "/company"
+@inject ICompanyRepository companyRepository
+@inject IPayGroupRepository payGroupRepository
+
+@inject NavigationManager navigationManager
+@inject IJSRuntime js
+@attribute [Authorize]
+
+<h3>Company Data</h3>
+
+@if (Company != null)
+{
+    <CompanyForm Company="Company" DisableInput="IsRestricted" OnValidSubmit="Edit" />
+
+
+
+    @if (PayGroups != null && !IsRestricted)
+    {
+        <div class="form-inline">
+            <GenericList List="PayGroups">
+                <WholeListTemplate>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Pay Group</th>
+                                <th>Period</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payGroup in PayGroups)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="/paygroups/edit/@payGroup.Id" class="btn btn-success">Edit</a>
+                                    </td>
+                                    <td>
+                                        @payGroup.Name
+                                    </td>
+                                    <td>
+                                        @payGroup.Period.ToString()
+                                    </td>
+                                    <td>
+
+                                        <button class="btn btn-danger" @onclick="@(() => DeletePayGroup(payGroup.Id))">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </WholeListTemplate>
+            </GenericList>
+            <a href="/paygroups/add" class="btn btn-success">Add Paygroup</a>
+        </div>
+
+
+    }
+}
+
+
+@code {
+
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+
+    Company Company;
+    List<PayGroup> PayGroups;
+    private bool IsRestricted = true;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        var role = authState.User.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+        if (role == "Admin")
+            IsRestricted = false;
+        Company = await companyRepository.GetCompany();
+        if (Company != null)
+        {
+            PayGroups = await payGroupRepository.GetPayGroups();
+        }
+    }
+
+    private async Task Edit()
+    {
+        await companyRepository.UpdateCompany(Company);
+        await js.AlertMessage("Company updated!");
+    }
+    private async Task DeletePayGroup(int Id)
+    {
+        await payGroupRepository.DeletePayGroup(Id);
+        PayGroups = await payGroupRepository.GetPayGroups();
+    }
+}

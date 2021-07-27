@@ -9,6 +9,7 @@ namespace L00161840BlazorProject.Shared.Entities
     public class Employee
     {
         public int Id { get; set; }
+        public string PayrollReference { get; set; }
         public string Forename { get; set; }
         public string Surname { get; set; }
         public string Email { get; set; }
@@ -22,8 +23,6 @@ namespace L00161840BlazorProject.Shared.Entities
         public string NOKName { get; set; }
         public string NOKPhone { get; set; }
 
-        public int CompanyId { get; set; }
-        public Company Company {get;set;}
     }
 
 }

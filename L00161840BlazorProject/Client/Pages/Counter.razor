@@ -1,4 +1,4 @@
-﻿@page "/company"
+﻿@page "/Counter"
 @inject ICompanyRepository companyRepository
 <h1>Counter</h1>
 <p></p>
@@ -41,7 +41,7 @@ else
     private async Task GetCompany()
     {
 
-        company =  await companyRepository.GetCompanyById(1);
+        company =  await companyRepository.GetCompany();
 
     }
 

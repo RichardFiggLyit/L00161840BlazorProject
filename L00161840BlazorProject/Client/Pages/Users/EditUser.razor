@@ -1,10 +1,9 @@
 ﻿@page "/users/edit/{userId}"
 @inject IUsersRepository usersRepository
 @inject IJSRuntime js
-@*@attribute [Authorize(Roles = "Admin")]*@
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Edit User</h3>
-
 <div class="form-inline">
     <select class="form-control mb-2 mr-sm-2" @bind="selectedRole">
         <option value="0">--Select a role--</option>
@@ -35,7 +34,6 @@
             await js.AlertMessage("You must select a role!");
             return;
         }
-
         await usersRepository.AssignRole(new EditRoleDTO() { RoleName = selectedRole, UserId = UserId });
         await js.AlertMessage("Role assigned!");
 

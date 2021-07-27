@@ -4,14 +4,16 @@ using L00161840BlazorProject.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace L00161840BlazorProject.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210727181346_PaydataChanged")]
+    partial class PaydataChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,9 +97,6 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PPSN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PayrollReference")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
@@ -213,9 +212,6 @@ namespace L00161840BlazorProject.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("MappedReference")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");

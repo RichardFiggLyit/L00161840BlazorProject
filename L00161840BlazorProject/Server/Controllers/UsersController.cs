@@ -16,7 +16,7 @@ namespace L00161840BlazorProject.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme/*, Roles = "Admin"*/)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     public class UsersController: ControllerBase
     {
         private readonly ApplicationDbContext context;

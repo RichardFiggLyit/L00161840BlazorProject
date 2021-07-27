@@ -13,8 +13,7 @@ namespace L00161840BlazorProject.Shared.Entities
         public PayGroup PayGroup { get; set; }
         public int TaxYear { get; set; }
         public int TaxPeriod { get; set; }
-        public DateTime PeriodStart { get; set; }
-        public DateTime PeriodEnd { get; set; }
+        public DateTime PayDate { get; set; }
         public List<PayData> PayDatas { get; set; } = new List<PayData>();
 
     }

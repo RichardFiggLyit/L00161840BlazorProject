@@ -10,4 +10,5 @@ namespace L00161840BlazorProject.Shared.Entities
     {
         Monthly, Weekly, Fortnightly, FourWeekly
     }
+    
 }

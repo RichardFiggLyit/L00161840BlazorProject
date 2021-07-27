@@ -4,14 +4,16 @@ using L00161840BlazorProject.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace L00161840BlazorProject.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210727103916_RemoveCompanyLink")]
+    partial class RemoveCompanyLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,6 +84,9 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.Property<string>("Address5")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -97,9 +102,6 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.Property<string>("PPSN")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PayrollReference")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
@@ -107,6 +109,8 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Employees");
                 });
@@ -146,12 +150,6 @@ namespace L00161840BlazorProject.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<double>("BasicHours")
-                        .HasColumnType("float");
-
-                    b.Property<double>("BasicRate")
-                        .HasColumnType("float");
 
                     b.Property<double>("EEPRSI")
                         .HasColumnType("float");
@@ -196,6 +194,9 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -203,6 +204,8 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("PayGroups");
                 });
@@ -213,9 +216,6 @@ namespace L00161840BlazorProject.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("MappedReference")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -235,11 +235,14 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("PayDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("PayGroupId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("PeriodEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("PeriodStart")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("TaxPeriod")
                         .HasColumnType("int");
@@ -475,6 +478,13 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Employee", b =>
+                {
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.Company", null)
+                        .WithMany("Employees")
+                        .HasForeignKey("CompanyId");
+                });
+
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Invite", b =>
                 {
                     b.HasOne("L00161840BlazorProject.Shared.Entities.Employee", "Employee")
@@ -501,6 +511,13 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("PayPeriod");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.PayGroup", b =>
+                {
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.Company", null)
+                        .WithMany("PayGroups")
+                        .HasForeignKey("CompanyId");
                 });
 
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.PayPeriod", b =>
@@ -582,6 +599,13 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Company", b =>
+                {
+                    b.Navigation("Employees");
+
+                    b.Navigation("PayGroups");
                 });
 
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.PayPeriod", b =>
