@@ -8,6 +8,6 @@ namespace L00161840BlazorProject.Shared.Entities
 {
     public enum PayItemType
     {
-        General, Payment, Deduction
+        Employee, General, Payment, Deduction
     }
 }

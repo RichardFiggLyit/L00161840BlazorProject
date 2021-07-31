@@ -1,0 +1,33 @@
+﻿<EditForm Model="PayItem" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>Name:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@PayItem.Name" />
+            <ValidationMessage For="@(() => PayItem.Name)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Item Type:</label>
+        <InputSelect @bind-Value="PayItem.PayItemType">
+            @foreach (var itemType in Enum.GetValues(typeof(PayItemType)))
+            {
+                <option value="@itemType">@itemType</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label>Mapped Reference:</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@PayItem.MappedReference" />
+            <ValidationMessage For="@(() => PayItem.MappedReference)" />
+        </div>
+    </div>
+
+    <button class="btn btn-success" type="submit">Save Changes</button>
+</EditForm>
+
+@code {
+    [Parameter] public PayItem PayItem { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

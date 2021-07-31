@@ -13,13 +13,24 @@ namespace L00161840BlazorProject.Shared.Entities
         public PayItemType PayItemType { get; set; }
         public string Name { get; set; }
         public string MappedReference { get; set; }
-        [NotMapped]
-        public string FullDescription
+
+        public override bool Equals(object obj)
         {
-            get
-            {
-                return PayItemType.ToString() + ": " + Name;
-            }
+            return obj is PayItem item &&
+                   Id == item.Id &&
+                   PayItemType == item.PayItemType &&
+                   Name == item.Name &&
+                   MappedReference == item.MappedReference;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, PayItemType, Name, MappedReference);
+        }
+
+        public override string ToString()
+        {
+            return PayItemType.ToString() + ": " + Name;
         }
     }
 }

@@ -38,6 +38,10 @@ namespace L00161840BlazorProject.Client
             services.AddScoped<IUsersRepository, UserRepository>();
             services.AddScoped<IInviteRepository, InviteRepository>();
             services.AddScoped<IPayGroupRepository, PayGroupRepository>();
+            services.AddScoped<IPayPeriodRepository, PayPeriodRepository>();
+            services.AddScoped<IPayItemRepository, PayItemRepository>();
+            services.AddScoped<IPayDataRepository, PayDataRepository>();
+            services.AddScoped<IPayslipItemRepository, PayslipItemRepository>();
 
             services.AddScoped<TokenRenewer>();
             services.AddAuthorizationCore();

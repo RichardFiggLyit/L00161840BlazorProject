@@ -63,6 +63,31 @@ namespace L00161840BlazorProject.Server.Controllers
             return employee.Id;
         }
 
+        [HttpPost("createupdate")]
+        public async Task<ActionResult<Employee>> PostOrUpdate(Employee employee)
+        {
+            var EmployeeDBPPSN = await context.Employees.AsNoTracking().FirstOrDefaultAsync(x => x.PPSN == employee.PPSN);
+            var EmployeeDBPayrollReference = await context.Employees.AsNoTracking().FirstOrDefaultAsync(x => x.PayrollReference == employee.PayrollReference);
+            if (EmployeeDBPayrollReference == null &&  EmployeeDBPPSN == null)
+            {
+                context.Add(employee);
+            }
+            else
+            {
+                if (EmployeeDBPPSN!= null)
+                {
+                    employee.Id = EmployeeDBPPSN.Id;
+                }
+                else
+                {
+                    employee.Id = EmployeeDBPayrollReference.Id;
+                }
+                context.Attach(employee).State = EntityState.Modified;
+            }
+            await context.SaveChangesAsync();
+            return employee;
+        }
+
         [HttpPut]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Put(Employee employee)

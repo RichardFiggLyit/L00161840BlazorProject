@@ -1,0 +1,38 @@
+﻿@if (DisplayConfirmation)
+{
+    <div class="modal-backdrop show"></div>
+
+    <div class="modal fade show" id="exampleModal" tabindex="-1"
+         role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true" style="display: block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        @Title
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    @Message 
+                </div>
+                <div class="modal-footer">
+                    <button @onclick="onConfirm" type="button" class="btn btn-primary">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool DisplayConfirmation = false;
+    [Parameter] public string Title { get; set; } = "Alert";
+    [Parameter] public string Message { get; set; }
+    public void Show() => DisplayConfirmation = true;
+    public void Hide() => DisplayConfirmation = false;
+
+    private void onConfirm()
+    {
+        this.Hide();
+    }
+
+}
