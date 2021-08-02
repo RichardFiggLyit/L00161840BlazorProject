@@ -8,6 +8,18 @@ namespace L00161840BlazorProject.Shared.Entities
 {
     public class PayPeriod
     {
+        public PayPeriod()
+        {
+        }
+
+        public PayPeriod(int payGroupId, int taxYear, int taxPeriod, DateTime payDate)
+        {
+            PayGroupId = payGroupId;
+            TaxYear = taxYear;
+            TaxPeriod = taxPeriod;
+            PayDate = payDate;
+        }
+
         public int Id { get; set; }
         public int PayGroupId { get; set; }
         public PayGroup PayGroup { get; set; }

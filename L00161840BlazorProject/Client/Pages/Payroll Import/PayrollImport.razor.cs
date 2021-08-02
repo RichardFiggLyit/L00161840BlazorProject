@@ -13,7 +13,7 @@ namespace L00161840BlazorProject.Client.Pages.Payroll_Import
     {
         public async Task OnInputFileChange(InputFileChangeEventArgs e)
         {
-            csvData = new List<string[]>();
+            csvData = new List<List<string>>();
             var singleFile = e.File;
 
             Regex regex = new Regex(".+\\.csv", RegexOptions.Compiled);
@@ -39,7 +39,7 @@ namespace L00161840BlazorProject.Client.Pages.Payroll_Import
             
         }
 
-        private string[] SplitCSV(string input)
+        private List<string> SplitCSV(string input)
         {
             //Excludes commas within quotes  
             Regex csvSplit = new Regex("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
@@ -53,7 +53,7 @@ namespace L00161840BlazorProject.Client.Pages.Payroll_Import
                 list.Add(curr.TrimStart(',').Replace("\r",""));
             }
 
-            return list.ToArray();
+            return list;
         }
         private void SetUpMapping()
         {
@@ -61,10 +61,13 @@ namespace L00161840BlazorProject.Client.Pages.Payroll_Import
             PayItems = new List<PayItem>();
             foreach(var header in headers)
             {
-                var item = PayItemsDB.FirstOrDefault(x => x.MappedReference == header);
+                var item = PayItemsDB.Where(x => x.MappedReference.ToLower() == header.ToLower()).FirstOrDefault();
                 if (item == null)
                 {
-                    //Needs a new pay items
+                    PayItems.Add(new PayItem()
+                    {
+                        MappedReference = header
+                    });
                 }
                 else
                 {

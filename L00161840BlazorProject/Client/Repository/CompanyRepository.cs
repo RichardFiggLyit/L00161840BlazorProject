@@ -36,6 +36,15 @@ namespace L00161840BlazorProject.Client.Repository
                 throw new ApplicationException(await response.GetBody());
             }
         }
+        
+        public async Task<List<PayrollOverviewDTO>> GetPayrollOverivew()
+        {
+            return await httpService.GetHelper<List<PayrollOverviewDTO>>($"{url}/payrolloverview");
+        }
+        public async Task<PayrollSummaryDTO> GetPayrollSummary(int id)
+        {
+            return await httpService.GetHelper<PayrollSummaryDTO>($"{url}/payrollsummary/{id}");
+        }
 
 
     }

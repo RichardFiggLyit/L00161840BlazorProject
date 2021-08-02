@@ -22,7 +22,7 @@ namespace L00161840BlazorProject.Shared.Entities
         public double ERPRSI { get; set; }
         public double USC { get; set; }
         public double LPT { get; set; }
-        List<PayslipItem> payslipItems = new List<PayslipItem>();
+        public List<PayslipItem> PayslipItems { get; set; } = new List<PayslipItem>();
 
     }
 }

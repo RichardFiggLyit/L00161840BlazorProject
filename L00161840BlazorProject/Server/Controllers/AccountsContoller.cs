@@ -1,4 +1,5 @@
 ﻿using L00161840BlazorProject.Shared.DTOs;
+using L00161840BlazorProject.Shared.DTOs.User;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

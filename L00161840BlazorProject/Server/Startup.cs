@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System;
-
+using System.Text.Json.Serialization;
 
 namespace L00161840BlazorProject.Server
 {
@@ -32,7 +32,8 @@ namespace L00161840BlazorProject.Server
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            
+            //services.AddControllers().AddJsonOptions(x =>
+            //  x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             services.AddAutoMapper(typeof(Startup));
             services.AddRazorPages();
 

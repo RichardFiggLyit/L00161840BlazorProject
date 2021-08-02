@@ -4,51 +4,75 @@
 @attribute [Authorize(Roles = "Admin")]
 
 <h3>Edit User</h3>
-<div class="form-inline">
-    <select class="form-control mb-2 mr-sm-2" @bind="selectedRole">
-        <option value="0">--Select a role--</option>
-        @foreach (var role in roles)
-        {
-            <option value="@role.RoleName">@role.RoleName</option>
-        }
-    </select>
+<form>
+    <div>
+        <label for="UserName">User Name</label>
+        <input type="text" @bind="userName" name="UserName" id="UserName" />
 
-    <button class="btn btn-info mb-2 mr-sm-2" @onclick="AssignRole">Assign Role</button>
-    <button class="btn btn-danger mb-2 mr-sm-2" @onclick="RemoveRole">Remove Role</button>
-</div>
+    </div>
+    <div>
+        <label for="IsAdmin">Is Administrator?</label>
+        <input type="checkbox" @bind="isAdmin" name="IsAdmin" id="IsAdmin" />
+
+    </div>
+    @if (employees != null)
+    {
+        <div>
+            <label for="LinkedEmployee">Linked Employee</label>
+            <select @bind="employeeId" name="LinkedEmployee" id="LinkedEmployee">
+                <option value="0">-Please select an Employee-</option>
+                @foreach (var employee in employees)
+                {
+                    <option value="@employee.EmployeeId">@employee.ToString()</option>
+                }
+            </select>
+        </div>
+    }
+    <button class="btn btn-success" @onclick="UpdateUser">Update User</button>
+</form>
 
 @code {
     [Parameter] public string UserId { get; set; }
-    private List<RoleDTO> roles = new List<RoleDTO>();
-    private string selectedRole = "0";
+    private string userName;
+    private string userNameDB;
+    private bool isAdmin = false;
+    private bool isAdminDB;
+    private int employeeId = 0;
+    private int employeeIdDB;
+    private List<UserEmployeeDTO> employees = null;
 
     protected override async Task OnInitializedAsync()
     {
-        roles = await usersRepository.GetRoles();
+        isAdmin = await usersRepository.GetAdmin(UserId);
+        isAdminDB = isAdmin;
+        employeeId = await usersRepository.GetEmployeeId(UserId);
+        employeeIdDB = employeeId;
+        employees = await usersRepository.GetEmployees();
+        var user = await usersRepository.GetUserName(UserId);
+        userName = user.UserName;
+        userNameDB = userName;
     }
-
-    private async Task AssignRole()
+    private async Task UpdateUser()
     {
-        if (selectedRole == "0")
+        if (isAdmin!= isAdminDB)
         {
-            await js.AlertMessage("You must select a role!");
-            return;
+            SetAdminDTO setAdminDTO = new SetAdminDTO() { IsAdmin = isAdmin, UserId = UserId };
+            await usersRepository.SetAdmin(setAdminDTO);
         }
-        await usersRepository.AssignRole(new EditRoleDTO() { RoleName = selectedRole, UserId = UserId });
-        await js.AlertMessage("Role assigned!");
+        if (employeeId != employeeIdDB)
+        {
+            SetEmployeeDTO setEmployeeDTO = new SetEmployeeDTO() { UserId = UserId, EmployeeId = employeeId.ToString() };
+            await usersRepository.SetEmployee(setEmployeeDTO);
+        }
+        if (userName != userNameDB)
+        {
+            UserNameDTO userNameDTO = new UserNameDTO() { UserId = UserId, UserName = userName };
+            await usersRepository.SetUserName(userNameDTO);
+
+        }
 
     }
 
-    private async Task RemoveRole()
-    {
-        if (selectedRole == "0")
-        {
-            await js.AlertMessage("You must select a role!");
-            return;
-        }
 
-        await usersRepository.RemoveRole(new EditRoleDTO() { RoleName = selectedRole, UserId = UserId });
-        await js.AlertMessage("Role removed");
-    }
 
 }

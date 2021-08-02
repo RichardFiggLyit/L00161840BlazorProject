@@ -1,0 +1,264 @@
+﻿@page "/test"
+<style type="text/css">
+
+        .outer-border {border-top:solid 1px #dadbdc}
+        .inner-border {padding:20px 0;}
+        .inner-border h2 {margin:0 0 20px 0;color:#db7100}
+        .inner-border .label-value {display:table;width:100%}
+        .inner-border .label-value h3 {display:table-cell;margin:0;padding:2px 15px 3px 0;vertical-align:top;text-align:left;font-size:10pt;line-height:14pt;font-weight:normal;color:#444}
+        .inner-border .label-value p {display:table-cell;margin:0;padding:2px 0 3px 0;vertical-align:top;text-align:right;font-size:10pt;line-height:14pt;font-weight:bold;}
+        .inner-border p.total {margin-bottom:15px;font-size:28pt;line-height:28pt;font-weight:300;}
+
+
+</style>
+<h1><strong>Payslip</strong> Week Ending 18 July 2021</h1>
+<div class="container custom-control-inline">
+    <div class="row">
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <h2>Employee Details</h2>
+
+                    <div class="label-value">
+                        <h3>Name</h3>
+                        <p>Cría Flanagan</p>
+                    </div>
+
+                    <div class="label-value">
+                        <h3>PPS Number</h3>
+                        <p>2241826Q</p>
+                    </div>
+
+
+
+
+                    <div class="label-value">
+                        <h3>Calculation basis</h3>
+                        <p>Emergency</p>
+                    </div>
+
+                    <div class="label-value">
+                        <h3>PRSI class</h3>
+                        <p>A0</p>
+                    </div>
+
+
+
+
+
+
+                    <div class="label-value hide-for-apr-request">
+                        <h3>Annual leave remaining</h3>
+                        <p>3.09 hours</p>
+                    </div>
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <h2>Additions</h2>
+
+                    <div class="label-value">
+                        <h3>7 hours  €7.14</h3>
+                        <p>€49.98</p>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix visible-sm-block"></div>
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <h2>Deductions</h2>
+
+                    <div class="label-value">
+                        <h3>Tax</h3>
+                        <p>€10.00</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>USC</h3>
+                        <p>€4.00</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>PRSI</h3>
+                        <p>€0.00</p>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix visible-md-block visible-lg-block"></div>
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <h2>Totals - This Pay Period</h2>
+
+                    <div class="label-value">
+                        <h3>Taxable gross pay</h3>
+                        <p>€49.98</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>USC-able gross pay</h3>
+                        <p>€49.98</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>PRSI (Employer)</h3>
+                        <p>€4.40</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>Net pay</h3>
+                        <p>€35.98</p>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix visible-sm-block"></div>
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <h2>Totals - Year to Date</h2>
+
+                    <div class="label-value">
+                        <h3>Taxable gross pay</h3>
+
+                        <p>€276.03</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>Tax</h3>
+
+                        <p>€55.21</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>USC-able gross pay</h3>
+
+                        <p>€276.03</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>USC</h3>
+
+                        <p>€22.08</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>PRSI (Employee)</h3>
+
+                        <p>€0.00</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>PRSI (Employer)</h3>
+
+                        <p>€24.29</p>
+                    </div>
+                    <div class="label-value">
+                        <h3>Insurable weeks</h3>
+
+                        <p>4</p>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-md-4">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <h2>Payment</h2>
+
+                    <p class="total">€35.98</p>
+
+                    <div class="label-value">
+                        <h3>Pay date</h3>
+                        <p>22 July 2021</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="clearfix visible-md-block"></div>
+
+    </div>
+</div>
+@code {
+    //Used Brightpay Connect payslip HTML as reference
+
+
+ }

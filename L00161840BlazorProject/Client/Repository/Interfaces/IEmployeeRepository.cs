@@ -8,6 +8,7 @@ namespace L00161840BlazorProject.Client.Repository
     public interface IEmployeeRepository
     {
         Task CreateEmployee(Employee employee);
+        Task<Employee> CreateOrUpdateEmployee(Employee employee);
         Task DeleteEmployee(int Id);
         Task<Employee> GetEmployeeById(int id);
         Task<PaginatedResponse<List<Employee>>> GetEmployees(PaginationDTO paginationDTO);

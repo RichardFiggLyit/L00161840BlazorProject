@@ -56,6 +56,16 @@ namespace L00161840BlazorProject.Client.Repository
             }
         }
 
+        public async Task<Employee> CreateOrUpdateEmployee(Employee employee)
+        {
+            var response = await httpService.Post<Employee, Employee>($"{url}/createupdate", employee);
+            if (!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
+            return response.Response;
+        }
+
         public async Task DeleteEmployee(int Id)
         {
             var response = await httpService.Delete($"{url}/{Id}");

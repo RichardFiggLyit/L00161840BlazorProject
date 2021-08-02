@@ -1,106 +1,122 @@
 ﻿@page "/payroll/import"
-
+@using L00161840BlazorProject.Client.Pages.PayItemData
 @inject IPayGroupRepository payGroupRepository
+@inject IPayItemRepository payItemRepository
+@inject IPayPeriodRepository payPeriodRepository
 @inject NavigationManager navigationManager
+@inject IEmployeeRepository employeeRepository
+@inject IPayDataRepository payDataRepository
+@inject IPayslipItemRepository payslipItemRepository
 @attribute [Authorize(Roles = "Admin")]
 
+<ModalAddPayItem @ref="AddPayItemForm" onConfirm="PayItemFormConfirm" onCancel="PayItemFormCancel"></ModalAddPayItem>
+
 <h3>Payroll Import</h3>
-@if (PayGroups != null && PayGroups.Count ==0)
-            {
-                <h3>No paygroups have been set up</h3>
-            }
+@if (PayGroups != null && PayGroups.Count == 0)
+{
+    <h3>No paygroups have been set up</h3>
+}
 @if (PayGroups != null)
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th>Pay Group</th>
-            <th>Tax Year</th>
-            <th>Tax Period</th>
-            <th>Pay Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <select @bind="payGroupId">
-                    <option value=0 >Select a Pay Group</option>
-                    @foreach (var payGroup in PayGroups)
-                    {
-                        <option value="@payGroup.Id">@payGroup.Name</option>
-                    }
-                </select>
-            </td>
-            <td>
-                <select @bind="currentYear">
-                    @foreach (var year in TaxYears)
-                    {
-                        <option value="@year">@year</option>
-                    }
-                </select>
-            </td>
-            <td>
-                <select @bind="payPeriod">
-                    @foreach (var period in Periods)
-                    {
-                        <option value="@period">@period</option>
-                    }
-                </select>
-            </td>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pay Group</th>
+                <th>Tax Year</th>
+                <th>Tax Period</th>
+                <th>Pay Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <select @bind="payGroupId">
+                        <option value=0>Select a Pay Group</option>
+                        @foreach (var payGroup in PayGroups)
+                        {
+                            <option value="@payGroup.Id">@payGroup.Name</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select @bind="taxYear">
+                        @foreach (var year in TaxYears)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select @bind="taxPeriod">
+                        @foreach (var period in Periods)
+                        {
+                            <option value="@period">@period</option>
+                        }
+                    </select>
+                </td>
 
-            <td>
-                <input type="date" @bind="@payDate" min="2018-01-01" />
-            </td>
-        </tr>
-    </tbody>
-</table>
-<br />
-<InputFile accept=".csv" OnChange="@OnInputFileChange" class="btn btn-primary" />
-<br />
-    if (headers != null)
+                <td>
+                    <input type="date" @bind="@payDate" min="2018-01-01" />
+
+                </td>
+                <td><button class="btn btn-info" @onclick="CheckPeriodExists">Check Pay Period</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    @if (payGroupId > 0 && ExistingPeriodId == 0)
     {
-<h2>Map data headers</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Header</th>
-            <th>Item</th>
-            <th>Item</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var header in headers)
-        {
-        <tr>
-            <td>
-                <select @bind="payGroupId">
-                    <option value=0>Select a Pay Group</option>
-                    @foreach (var payGroup in PayGroups)
-                    {
-                        <option value="@payGroup.Id">@payGroup.Name</option>
-                    }
-                </select>
-            </td>
-            <td>
-                <select @bind="currentYear">
-                    @foreach (var year in TaxYears)
-                    {
-                        <option value="@year">@year</option>
-                    }
-                </select>
-            </td>
-            <td>
-                <select @bind="payPeriod">
-                    @foreach (var period in Periods)
-                    {
-                        <option value="@period">@period</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+        <InputFile accept=".csv" OnChange="@OnInputFileChange" class="btn btn-primary" />
+    }
+    @if (ExistingPeriodId > 0)
+    {
+        <div class="form-group">
+            <label>Pay Period already Exists!</label>
+            <div>
+                <button class="btn btn-danger" type="submit" @onclick="DeletePayPeriod">Delete Pay Period</button>
+            </div>
+        </div>
+    }
+    <br />
+    @if (headers != null)
+    {
+        <h2>Map data headers</h2>
+        <br />
+        <br />
+        <button @onclick="PayItemForm" class="btn btn-success">Add Pay Item</button>
+        <br />
+        <br />
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Header</th>
+                    <th>Item</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < headers.Count; i++)
+                {
+                    var row = i;
+                    <tr>
+                        <td>
+                            <label for="name">@headers[row]</label>
+                        </td>
+                        <td>
+                            <select @bind="@PayItems[row].Id">
+                                <option value=0 back>Select a Pay Item</option>
+                                @foreach (var item in PayItemsDB)
+                                {
+                                    <option value="@item.Id">@item.ToString()</option>
+                                }
+                            </select>
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button class="btn btn-success" type="submit" @onclick="UploadData">Upload Data</button>
     }
 
 }
@@ -109,15 +125,15 @@
 
 @code {
 
-    public List<string[]> csvData = new List<string[]>();
+    public List<List<string>> csvData = new List<List<string>>();
     public List<string> headers;
     public List<int> TaxYears = new List<int>();
     public List<int> Periods = new List<int>() { 1 };
-
-
+    public ModalAddPayItem AddPayItemForm { get; set; }
+    public int ExistingPeriodId { get; set; } = -1;
     List<PayGroup> PayGroups;
-    List<PayItem> PayItems;
-    List<PayItem> PayItemsDB;
+    List<PayItem> PayItems = new List<PayItem>();
+    List<PayItem> PayItemsDB = new List<PayItem>();
     private int _payGroupId;
     public int payGroupId
     {
@@ -125,11 +141,30 @@
         set
         {
             _payGroupId = value;
+            ExistingPeriodId = -1;
             UpdateTaxPeriods();
         }
     }
-    int payPeriod = 1;
-    int currentYear = DateTime.Today.Year;
+    private int _taxPeriod = 1;
+    public int taxPeriod
+    {
+        get { return _taxPeriod; }
+        set
+        {
+            _taxPeriod = value;
+            ExistingPeriodId = -1;
+        }
+    }
+    private int _taxYear = DateTime.Today.Year;
+    public int taxYear
+    {
+        get { return _taxYear; }
+        set
+        {
+            _taxYear = value;
+            ExistingPeriodId = -1;
+        }
+    }
     DateTime payDate = DateTime.Today;
 
 
@@ -141,9 +176,215 @@
             TaxYears.Add(year);
         }
         PayGroups = await payGroupRepository.GetPayGroups();
+        await GetPayItems();
+
+    }
+    private async Task DeletePayPeriod()
+    {
+        await payPeriodRepository.DeletePayPeriod(ExistingPeriodId);
+        ExistingPeriodId = 0;
+    }
+    private async Task UploadData()
+    {
+        for (int i = 0; i < PayItems.Count; i++)
+        {
+            string header = headers[i];
+            var item = PayItems[i];
+            item.MappedReference = header;
+            if (item.Id != 0)
+            {
+                var itemDB = PayItemsDB.Where(x => x.Id == item.Id).FirstOrDefault();
+                if (itemDB != null)
+                {
+                    //Check if the item has changed
+                    if (!itemDB.Equals(item))
+                    {
+                        await payItemRepository.UpdatePayItem(item);
+                    }
+                }
+            }
+        }
+        PayPeriod payPeriod = new PayPeriod(payGroupId, taxYear, taxPeriod, payDate);
+        int periodId = await payPeriodRepository.CreatePayPeriod(payPeriod);
+        for (int i = 1; i < csvData.Count; i++)
+        {
+            Employee employee = new Employee();
+            PayData payData = new PayData();
+            List<PayslipItem> payslipItems = new List<PayslipItem>();
+            List<string> currentRow = csvData[i];
+            for (int j = 0; j < currentRow.Count; j++)
+            {
+                string header = csvData[0][j];
+                PayItem payItem = PayItems.Where(x => x.MappedReference.ToLower() == header.ToLower()).FirstOrDefault();
+                string value = csvData[i][j];
+                if (payItem != null)
+                {
+                    switch (payItem.PayItemType)
+                    {
+                        case PayItemType.Employee:
+
+                            MapEmployee(payItem, employee, value);
+                            break;
+                        case PayItemType.General:
+                            MapGeneral(payItem, payData, value);
+                            break;
+                        case PayItemType.Payment:
+                        case PayItemType.Deduction:
+                            MapPaymentDeduction(payItem, payslipItems, value);
+                            break;
+
+                    }
+
+                }
+
+            }
+            if (!string.IsNullOrWhiteSpace(employee.PPSN) || !string.IsNullOrWhiteSpace(employee.PayrollReference))
+            {
+                employee = await employeeRepository.CreateOrUpdateEmployee(employee);
+                if (employee.Id != 0)
+                {
+                    payData.EmployeeId = employee.Id;
+                    payData.PayPeriodId = periodId;
+                    int payDataId = await payDataRepository.CreatePayData(payData);
+                    if (payDataId != 0)
+                    {
+                        foreach (var payslipItem in payslipItems)
+                        {
+                            payslipItem.PayDataId = payDataId;
+                            await payslipItemRepository.CreatePayslipItem(payslipItem);
+                        }
+                    }
+                }
+
+            }
+
+        }
+        csvData = new List<List<string>>();
+        headers = null;
+        ExistingPeriodId = -1;
+    }
+    private async Task CheckPeriodExists()
+    {
+        PayPeriod period = await payPeriodRepository.GetPayPeriod(payGroupId, taxYear, taxPeriod);
+        ExistingPeriodId = period.Id;
+
 
     }
 
+    private void MapEmployee(PayItem payItem, Employee employee, string value)
+    {
+        switch (payItem.Name)
+        {
+            case "Payroll Reference":
+                employee.PayrollReference = value;
+                break;
+            case "Forename":
+                employee.Forename = value;
+                break;
+            case "Surname":
+                employee.Surname = value;
+                break;
+            case "PPSN":
+                employee.PPSN = value;
+                break;
+            case "Email":
+                employee.Email = value;
+                break;
+            case "Address 1":
+                employee.Address1 = value;
+                break;
+            case "Address 2":
+                employee.Address2 = value;
+                break;
+            case "Address 3":
+                employee.Address3 = value;
+                break;
+            case "Address 4":
+                employee.Address4 = value;
+                break;
+            case "Address 5":
+                employee.Address5 = value;
+                break;
+            case "Phone":
+                employee.Phone = value;
+                break;
+            case "NOK Name":
+                employee.NOKName = value;
+                break;
+            case "NOK Phone":
+                employee.NOKPhone = value;
+                break;
+        }
+    }
+
+    private void MapGeneral(PayItem payItem, PayData payData, string value)
+    {
+        double amount = 0.0;
+        bool IsDouble = Double.TryParse(value, out amount);
+        if (IsDouble)
+        {
+            switch (payItem.Name)
+            {
+                case "Basic Hours":
+                    payData.BasicHours = amount;
+                    break;
+                case "Basic Rate":
+                    payData.BasicRate = amount;
+                    break;
+                case "Gross":
+                    payData.Gross = amount;
+                    break;
+                case "PAYE":
+                    payData.PAYE = amount;
+                    break;
+                case "USC":
+                    payData.USC = amount;
+                    break;
+                case "EE PRSI":
+                    payData.EEPRSI = amount;
+                    break;
+                case "ER PRSI":
+                    payData.ERPRSI = amount;
+                    break;
+                case "LPT":
+                    payData.LPT = amount;
+                    break;
+                case "Net":
+                    payData.Net = amount;
+                    break;
+            }
+        }
+    }
+
+    private void MapPaymentDeduction(PayItem payItem, List<PayslipItem> payslipItems, string value)
+    {
+        double amount = 0.0;
+        bool IsDouble = Double.TryParse(value, out amount);
+        if (IsDouble && amount != 0.0)
+        {
+            payslipItems.Add(new PayslipItem()
+            {
+                Amount = amount,
+                PayDataId = 0,
+                PayItemId = payItem.Id
+            });
+
+        }
+    }
+    private void PayItemForm()
+    {
+        AddPayItemForm.Show();
+    }
+    private async Task PayItemFormConfirm()
+    {
+        AddPayItemForm.Hide();
+        await GetPayItems();
+        SetUpMapping();
+    }
+    private void PayItemFormCancel()
+    {
+        AddPayItemForm.Hide();
+    }
     private void UpdateTaxPeriods()
     {
 
@@ -174,6 +415,11 @@
             Periods = Enumerable.Range(1, totalPeriods).ToList();
 
         }
+    }
+
+    private async Task GetPayItems()
+    {
+        PayItemsDB = await payItemRepository.GetPayItems();
     }
 
 
