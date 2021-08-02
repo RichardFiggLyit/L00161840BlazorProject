@@ -10,10 +10,10 @@
     <div class="form-group">
         <label>Item Type:</label>
         <InputSelect @bind-Value="PayItem.PayItemType">
-            @foreach (var itemType in Enum.GetValues(typeof(PayItemType)))
-            {
+            @foreach (PayItemType itemType in Enum.GetValues(typeof(PayItemType)))
+            { 
                 <option value="@itemType">@itemType</option>
-            }
+                }
         </InputSelect>
     </div>
     <div class="form-group">

@@ -61,6 +61,7 @@
 @code {
 
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    [CascadingParameter] Alert Alert { get; set; }
 
     Company Company;
     List<PayGroup> PayGroups;
@@ -68,6 +69,14 @@
 
     protected async override Task OnInitializedAsync()
     {
+        //try
+        //{
+        //    throw new NullReferenceException();
+        //}
+        //catch (Exception ex)
+        //{
+        //    Alert.ShowError(ex.Message);
+        //}
         var authState = await AuthenticationState;
         var role = authState.User.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
         if (role == "Admin")

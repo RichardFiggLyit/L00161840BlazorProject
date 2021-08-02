@@ -1,4 +1,5 @@
 ﻿using L00161840BlazorProject.Shared.DTOs;
+using L00161840BlazorProject.Shared.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;

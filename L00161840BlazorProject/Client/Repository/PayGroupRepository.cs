@@ -24,6 +24,8 @@ namespace L00161840BlazorProject.Client.Repository
                 return await httpService.GetHelper<List<PayGroup>>(url);
             }
 
+
+
             public async Task<PayGroup> GetPayGroupById(int id)
             {
                 return await httpService.GetHelper<PayGroup>($"{url}/{id}");

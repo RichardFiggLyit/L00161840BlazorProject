@@ -9,7 +9,7 @@
 @inject IPayslipItemRepository payslipItemRepository
 @attribute [Authorize(Roles = "Admin")]
 
-<ModalAddPayItem @ref="AddPayItemForm" onConfirm="PayItemFormConfirm" onCancel="PayItemFormCancel" ></ModalAddPayItem>
+<ModalAddPayItem @ref="AddPayItemForm" onConfirm="PayItemFormConfirm" onCancel="PayItemFormCancel"></ModalAddPayItem>
 
 <h3>Payroll Import</h3>
 @if (PayGroups != null && PayGroups.Count == 0)
@@ -25,6 +25,7 @@
                 <th>Tax Year</th>
                 <th>Tax Period</th>
                 <th>Pay Date</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -39,7 +40,7 @@
                     </select>
                 </td>
                 <td>
-                    <select @bind="currentYear">
+                    <select @bind="taxYear">
                         @foreach (var year in TaxYears)
                         {
                             <option value="@year">@year</option>
@@ -57,14 +58,25 @@
 
                 <td>
                     <input type="date" @bind="@payDate" min="2018-01-01" />
+
                 </td>
+                <td><button class="btn btn-info" @onclick="CheckPeriodExists">Check Pay Period</button></td>
             </tr>
         </tbody>
     </table>
     <br />
-    @if (payGroupId > 0)
+    @if (payGroupId > 0 && ExistingPeriodId == 0)
     {
         <InputFile accept=".csv" OnChange="@OnInputFileChange" class="btn btn-primary" />
+    }
+    @if (ExistingPeriodId > 0)
+    {
+        <div class="form-group">
+            <label>Pay Period already Exists!</label>
+            <div>
+                <button class="btn btn-danger" type="submit" @onclick="DeletePayPeriod">Delete Pay Period</button>
+            </div>
+        </div>
     }
     <br />
     @if (headers != null)
@@ -104,7 +116,7 @@
                 }
             </tbody>
         </table>
-                <button class="btn btn-success" type="submit" @onclick="UploadData">Upload Data</button>
+        <button class="btn btn-success" type="submit" @onclick="UploadData">Upload Data</button>
     }
 
 }
@@ -118,7 +130,7 @@
     public List<int> TaxYears = new List<int>();
     public List<int> Periods = new List<int>() { 1 };
     public ModalAddPayItem AddPayItemForm { get; set; }
-
+    public int ExistingPeriodId { get; set; } = -1;
     List<PayGroup> PayGroups;
     List<PayItem> PayItems = new List<PayItem>();
     List<PayItem> PayItemsDB = new List<PayItem>();
@@ -129,11 +141,30 @@
         set
         {
             _payGroupId = value;
+            ExistingPeriodId = -1;
             UpdateTaxPeriods();
         }
     }
-    int taxPeriod = 1;
-    int currentYear = DateTime.Today.Year;
+    private int _taxPeriod = 1;
+    public int taxPeriod
+    {
+        get { return _taxPeriod; }
+        set
+        {
+            _taxPeriod = value;
+            ExistingPeriodId = -1;
+        }
+    }
+    private int _taxYear = DateTime.Today.Year;
+    public int taxYear
+    {
+        get { return _taxYear; }
+        set
+        {
+            _taxYear = value;
+            ExistingPeriodId = -1;
+        }
+    }
     DateTime payDate = DateTime.Today;
 
 
@@ -148,6 +179,11 @@
         await GetPayItems();
 
     }
+    private async Task DeletePayPeriod()
+    {
+        await payPeriodRepository.DeletePayPeriod(ExistingPeriodId);
+        ExistingPeriodId = 0;
+    }
     private async Task UploadData()
     {
         for (int i = 0; i < PayItems.Count; i++)
@@ -160,6 +196,7 @@
                 var itemDB = PayItemsDB.Where(x => x.Id == item.Id).FirstOrDefault();
                 if (itemDB != null)
                 {
+                    //Check if the item has changed
                     if (!itemDB.Equals(item))
                     {
                         await payItemRepository.UpdatePayItem(item);
@@ -167,7 +204,7 @@
                 }
             }
         }
-        PayPeriod payPeriod = new PayPeriod(payGroupId, currentYear, taxPeriod, payDate);
+        PayPeriod payPeriod = new PayPeriod(payGroupId, taxYear, taxPeriod, payDate);
         int periodId = await payPeriodRepository.CreatePayPeriod(payPeriod);
         for (int i = 1; i < csvData.Count; i++)
         {
@@ -222,8 +259,17 @@
             }
 
         }
+        csvData = new List<List<string>>();
+        headers = null;
+        ExistingPeriodId = -1;
     }
+    private async Task CheckPeriodExists()
+    {
+        PayPeriod period = await payPeriodRepository.GetPayPeriod(payGroupId, taxYear, taxPeriod);
+        ExistingPeriodId = period.Id;
 
+
+    }
 
     private void MapEmployee(PayItem payItem, Employee employee, string value)
     {

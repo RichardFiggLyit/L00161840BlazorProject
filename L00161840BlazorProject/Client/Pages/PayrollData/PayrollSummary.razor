@@ -1,0 +1,128 @@
+﻿@page "/payroll/view/{PayPeriodId:int}"
+@inject ICompanyRepository companyRepository
+
+
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+<h3>Payroll Summary</h3>
+@if (@PayrollSummaryDTO != null)
+{
+<h4>@PayrollSummaryDTO.PayGroupName&nbsp;&nbsp;@PayrollSummaryDTO.PayPeriod.ToString()</h4>
+<h4>Pay Date: @PayrollSummaryDTO.PayDate.ToString("dd/MM/yyyy")</h4>
+<h4>Tax Year: @PayrollSummaryDTO.TaxYear&nbsp;&nbsp;Tax Period: @PayrollSummaryDTO.TaxPeriod</h4>
+
+<GenericList List="PayrollSummaryDTO.Rows">
+    <WholeListTemplate>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Payroll Reference</th>
+                    <th>Employee Name</th>
+                    <th>PPSN</th>
+                    <th>Gross</th>
+                    <th>Basic Hours</th>
+                    <th>Basic Rate</th>
+                    @foreach (var item in PayrollSummaryDTO.Payments)
+                    {
+                        <th>@item.Name</th>
+                    }
+                    <th>PAYE</th>
+                    <th>USC</th>
+                    <th>EE PRSI</th>
+                    <th>LPT</th>
+                    @foreach (var item in PayrollSummaryDTO.Deductions)
+                    {
+                        <th>@item.Name</th>
+                    }
+                    <th>Net</th>
+                    <th>ER PRSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in PayrollSummaryDTO.Rows)
+                {
+                    <tr>
+                        <td>
+                            <a href="/payroll/payslip/@record.PayDataId" class="btn btn-success">View Payslip</a>
+                        </td>
+                        <td>
+                            @record.PayrollReference
+                        </td>
+                        <td>
+                            @record.EmployeeName
+                        </td>
+                        <td>
+                            @record.PPSN
+                        </td>
+                        <td>
+                            @record.Gross.ToString(NF)
+                        </td>
+                        <td>
+                            @record.BasicHours.ToString(NF)
+                        </td>
+                        <td>
+                            @record.BasicRate.ToString(NF)
+                        </td>
+                        @foreach (var item in PayrollSummaryDTO.Payments)
+                        {
+
+                            <td>@((record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0).ToString(NF))</td>
+                        }
+                        <td>@record.PAYE.ToString(NF)</td>
+                        <td>@record.USC.ToString(NF)</td>
+                        <td>@record.EEPRSI.ToString(NF)</td>
+                        <td>@record.LPT.ToString(NF)</td>
+                        @foreach (var item in PayrollSummaryDTO.Deductions)
+                        {
+                            <td>@((0.0-(record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToString(NF))</td>
+                        }
+                        <td>
+                            @record.Net.ToString(NF)
+                        </td>
+                        <td>
+                            @record.ERPRSI.ToString(NF)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Totals</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Gross).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.BasicHours).ToString(NF)</td>
+                    <td></td>
+                    @foreach (var item in PayrollSummaryDTO.Payments)
+                    {
+                        <td>@((PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToString(NF))</td>
+                    }
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.PAYE).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.USC).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.EEPRSI).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.LPT).ToString(NF)</td>
+                    @foreach (var item in PayrollSummaryDTO.Deductions)
+                    {
+                        <td>@((0.0-(PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0))).ToString(NF))</td>
+                    }
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Net).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.ERPRSI).ToString(NF)</td>
+                </tr>
+            </tfoot>
+        </table>
+    </WholeListTemplate>
+</GenericList>
+}
+@code {
+    [Parameter] public int PayPeriodId { get; set; }
+    private readonly string NF = "#,###,###,##0.00";
+    PayrollSummaryDTO PayrollSummaryDTO;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PayrollSummaryDTO = await companyRepository.GetPayrollSummary(PayPeriodId);
+    }
+
+}

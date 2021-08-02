@@ -29,6 +29,11 @@ namespace L00161840BlazorProject.Client.Repository
             return await httpService.GetHelper<PayPeriod>($"{url}/{id}");
         }
 
+        public async Task<PayPeriod> GetPayPeriod(int payGroupId, int taxYear, int taxPeriod)
+        {
+            return await httpService.GetHelper<PayPeriod>($"{url}/{payGroupId}/{taxYear}/{taxPeriod}");
+        }
+
         public async Task<int> CreatePayPeriod(PayPeriod payPeriod)
         {
             var response = await httpService.Post<PayPeriod, int>(url, payPeriod);

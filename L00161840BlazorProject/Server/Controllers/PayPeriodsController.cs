@@ -41,6 +41,13 @@ namespace L00161840BlazorProject.Server.Controllers
             if (payPeriod == null) { return NotFound(); }
             return payPeriod;
         }
+        [HttpGet("{payGroupId}/{taxYear}/{taxPeriod}")]
+        public async Task<ActionResult<PayPeriod>> Get(int payGroupId, int taxYear, int taxPeriod)
+        {
+            var payPeriod = await context.PayPeriods.FirstOrDefaultAsync(x => x.PayGroupId == payGroupId && x.TaxPeriod == taxPeriod && x.TaxYear == taxYear);
+            if (payPeriod == null) { return new PayPeriod(); }
+            return payPeriod;
+        }
 
 
         [HttpPost]
@@ -76,7 +83,13 @@ namespace L00161840BlazorProject.Server.Controllers
             {
                 return NotFound();
             }
-
+            var payDatum = await context.PayDatum.Where(x => x.PayPeriodId == id).ToListAsync();
+            foreach (var data in payDatum)
+            {
+                var payslipItems = await context.PayslipItems.Where(x => x.PayDataId == data.Id).ToListAsync();
+                context.RemoveRange(payslipItems);
+            }
+            context.RemoveRange(payDatum);
             context.Remove(PayPeriod);
             await context.SaveChangesAsync();
             return NoContent();

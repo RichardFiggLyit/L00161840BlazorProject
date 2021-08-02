@@ -10,6 +10,7 @@ namespace L00161840BlazorProject.Client.Repository
     {
         Task<int> CreatePayPeriod(PayPeriod payPeriod);
         Task DeletePayPeriod(int Id);
+        Task<PayPeriod> GetPayPeriod(int payGroupId, int taxYear, int taxPeriod);
         Task<PayPeriod> GetPayPeriodById(int id);
         Task<List<PayPeriod>> GetPayPeriods();
         Task UpdatePayPeriod(PayPeriod payPeriod);

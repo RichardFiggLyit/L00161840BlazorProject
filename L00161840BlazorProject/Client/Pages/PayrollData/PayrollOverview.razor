@@ -1,0 +1,65 @@
+﻿@page "/payroll/overview"
+@inject ICompanyRepository companyRepository
+
+
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+<h3>Payroll Overview</h3>
+<GenericList List="PayrollOverviews">
+    <WholeListTemplate>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Pay Group Name</th>
+                    <th>Pay Period</th>
+                    <th>Pay Date</th>
+                    <th>Tax Year</th>
+                    <th>Tax Period</th>
+                    <th>Total Gross</th>
+                    <th>Total Net</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in PayrollOverviews)
+                {
+                <tr>
+                    <td>
+                        <a href="/payroll/view/@record.PayPeriodId" class="btn btn-success">View</a>
+                    </td>
+                    <td>
+                       @record.PayGroupName
+                    </td>
+                    <td>
+                        @record.PayPeriod.ToString()
+                    </td>
+                    <td>
+                        @record.PayDate.ToString("dd/MM/yyyy")
+                    </td>
+                    <td>
+                        @record.TaxYear
+                    </td>
+                    <td>
+                        @record.TaxPeriod
+                    </td>
+                    <td>
+                        @record.TotalGross.ToString(NF)
+                    </td>
+                    <td>
+                        @record.TotalNet.ToString(NF)
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </WholeListTemplate>
+</GenericList>
+@code {
+    List<PayrollOverviewDTO> PayrollOverviews;
+    private readonly string NF = "#,###,###,##0.00";
+    protected override async Task OnInitializedAsync()
+    {
+        PayrollOverviews = await companyRepository.GetPayrollOverivew();
+    }
+
+}

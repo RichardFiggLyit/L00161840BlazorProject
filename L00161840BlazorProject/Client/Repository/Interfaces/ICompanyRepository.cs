@@ -11,7 +11,8 @@ namespace L00161840BlazorProject.Client.Repository
     {
 
         Task<Company> GetCompany();
-
+        Task<List<PayrollOverviewDTO>> GetPayrollOverivew();
+        Task<PayrollSummaryDTO> GetPayrollSummary(int id);
         Task UpdateCompany(Company company);
     }
 }

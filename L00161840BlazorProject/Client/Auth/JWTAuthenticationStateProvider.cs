@@ -2,6 +2,7 @@
 using L00161840BlazorProject.Client.Helpers;
 using L00161840BlazorProject.Client.Repository;
 using L00161840BlazorProject.Shared.DTOs;
+using L00161840BlazorProject.Shared.DTOs.User;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using System;
