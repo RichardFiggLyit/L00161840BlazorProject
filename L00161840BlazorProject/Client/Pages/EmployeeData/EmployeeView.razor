@@ -1,0 +1,142 @@
+﻿@page "/employee/view/{EmployeeId:int}"
+
+@inject IEmployeeRepository employeeRepository 
+@inject IEmailService emailService
+@inject ICompanyRepository companyRepository
+
+@if (Employee == null)
+            {
+    <h3>@pageMessage</h3>
+            }
+ else
+	{
+
+<h3>Employee Overview</h3>
+<br />
+
+<Accordion CardHeaderTitle="Employee Data">
+    <CardHeader>
+    </CardHeader>
+    <CardBody>
+        <EmployeeForm Employee="Employee" DisableInput="!isAdmin" OnValidSubmit="UpdateEmployee"></EmployeeForm>
+    </CardBody>
+</Accordion>
+
+<Accordion CardHeaderTitle="Payslips">
+    <CardHeader>
+    </CardHeader>
+    <CardBody>
+        @if (payslips != null)
+        {
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Pay Group Name</th>
+                        <th>Pay Period</th>
+                        <th>Pay Date</th>
+                        <th>Tax Year</th>
+                        <th>Tax Period</th>
+                        <th>Gross</th>
+                        <th>Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payslip in payslips)
+                    {
+                    <tr>
+                        <td>
+                            <a href="/payroll/payslip/@payslip.PayDataId" class="btn btn-success">View</a>
+                        </td>
+                        <td>
+                            @payslip.PayGroupName
+                        </td>
+                        <td>
+                            @payslip.PayPeriod.ToString()
+                        </td>
+                        <td>
+                            @payslip.PayDate.ToString("dd/MM/yyyy")
+                        </td>
+                        <td>
+                            @payslip.TaxYear
+                        </td>
+                        <td>
+                            @payslip.TaxPeriod
+                        </td>
+                        <td>
+                            @payslip.TotalGross.ToEuro()
+                        </td>
+                        <td>
+                            @payslip.TotalNet.ToEuro()
+                        </td>
+                    </tr>
+                            }
+                    </tbody>
+                </table>
+                    }
+                    else
+                    {
+                    <h3>There are no payslips to show</h3>
+                    }
+        </CardBody>
+</Accordion>
+
+<Accordion CardHeaderTitle="Annual Leave">
+    <CardHeader>
+    </CardHeader>
+    <CardBody>
+        <p>To be written...</p>
+    </CardBody>
+</Accordion>
+}
+@code {
+    [Parameter] public int EmployeeId { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    [CascadingParameter] Alert Alert { get; set; }
+    public Employee Employee;
+    public Employee EmployeeDB;
+    private bool isAdmin = false;
+    private List<PayslipOverviewDTO> payslips;
+    private string pageMessage = "Loading...";
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        isAdmin = authState.User.IsAdmin();
+        int userEmployeeId = authState.User.EmployeeId();
+
+        if (!isAdmin && userEmployeeId != EmployeeId)
+        {
+            pageMessage = "You are not authorised to view this employee.";
+        }
+        else
+        {
+            try
+            {
+                Employee = await employeeRepository.GetEmployeeById(EmployeeId);
+                EmployeeDB = Employee.ShallowCopy();
+                payslips = await employeeRepository.GetPayslipOverview(EmployeeId);
+            }
+            catch
+            {
+                Employee = null;
+                pageMessage = "Cannot load employee. Check access rights or contact System Administrator";
+            }
+        }
+
+    }
+    private async Task UpdateEmployee()
+    {
+        if (!Employee.Equals(EmployeeDB))
+        {
+            await employeeRepository.UpdateEmployee(Employee);
+            if (!isAdmin)
+            {
+                var company = await companyRepository.GetCompany();
+                await emailService.SendEmail("info@portal.com", company.AdminEmail, String.Format("Employee {0} has been updated!", Employee.Forename + " " + Employee.Surname), String.Format("<p>Hi,</p><br/><p>{0} has been updated. Please login to view the changes and update the payroll software.</p>", Employee.Forename + " " + Employee.Surname));
+
+            }
+            Alert.ShowAlert("Success!", "Record updated!");
+        }
+    }
+}

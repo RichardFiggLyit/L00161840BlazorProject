@@ -1,4 +1,5 @@
 ﻿using L00161840BlazorProject.Client.Helpers;
+using L00161840BlazorProject.Shared.DTOs;
 using L00161840BlazorProject.Shared.Entities;
 using System;
 using System.Collections.Generic;

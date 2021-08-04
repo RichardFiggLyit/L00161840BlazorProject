@@ -34,6 +34,7 @@ namespace L00161840BlazorProject.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<List<UserDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
         {
+            
             var queryable = context.Users.AsQueryable();
             await HttpContext.InsertPaginationParametersInResponse(queryable, paginationDTO.RecordsPerPage);
             return await queryable.Paginate(paginationDTO)

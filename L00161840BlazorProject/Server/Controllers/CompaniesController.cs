@@ -58,14 +58,15 @@ namespace L00161840BlazorProject.Server.Controllers
                 
         }
 
-        [HttpGet("payrollsummary/{id}")]
+         [HttpGet("payrollsummary/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<PayrollSummaryDTO>> GetPayrollSummary(int id)
         {
+            
             var payItems = await context.PayItems.ToListAsync();
             var payPeriod = await context.PayPeriods.FirstOrDefaultAsync(x => x.Id == id);
             var payGroup = await context.PayGroups.FirstOrDefaultAsync(x => x.Id == payPeriod.PayGroupId);
-            var payDatum =  await context.PayDatum.Where(x => x.PayPeriodId == id).ToListAsync();
+            var payDatum =  await context.PayDatum.Where(x => x.PayPeriodId == id).Include(x=>x.Employee).Include(x=>x.PayslipItems).ToListAsync();
             PayrollSummaryDTO payrollSummaryDTO = new PayrollSummaryDTO()
             {
                 PayDate = payPeriod.PayDate,
@@ -83,30 +84,30 @@ namespace L00161840BlazorProject.Server.Controllers
             
             foreach (var record in payDatum)
             {
-                var employee = await context.Employees.FirstOrDefaultAsync(x => x.Id == record.EmployeeId);
-                var payslipItems = await context.PayslipItems.Where(x => x.PayDataId == record.Id).Select(x=> new PayslipItemDTO
-                {
-                    Amount = x.Amount,
-                    Id = x.Id,
-                    PayDataId = x.PayDataId,
-                    PayItemId = x.PayItemId
-                }).ToListAsync();
+                //var employee = await context.Employees.FirstOrDefaultAsync(x => x.Id == record.EmployeeId);
+                //var payslipItems = await context.PayslipItems.Where(x => x.PayDataId == record.Id).Select(x=> new PayslipItemDTO
+                //{
+                //    Amount = x.Amount,
+                //    Id = x.Id,
+                //    PayDataId = x.PayDataId,
+                //    PayItemId = x.PayItemId
+                //}).ToListAsync();
                 PayrollSummaryDTO.Row row = new PayrollSummaryDTO.Row()
                 { 
                     PayDataId = record.Id,
                     BasicHours = record.BasicHours,
                     BasicRate = record.BasicRate,
                     EEPRSI = record.EEPRSI,
-                    EmployeeName = employee.Forename + " " + employee.Surname,
+                    EmployeeName = record.Employee.Forename + " " + record.Employee.Surname,
                     ERPRSI = record.ERPRSI,
                     Gross = record.Gross,
                     LPT = record.LPT,
                     Net = record.Net,
                     PAYE = record.PAYE,
-                    PayrollReference = employee.PayrollReference,
-                    PPSN = employee.PPSN,
+                    PayrollReference = record.Employee.PayrollReference,
+                    PPSN = record.Employee.PPSN,
                     USC = record.USC,
-                    PayslipItems = payslipItems
+                    PayslipItems = record.PayslipItems.Select(x=> new PayslipItemDTO {Amount = x.Amount, Id = x.Id, PayDataId = x.PayDataId, PayItemId = x.PayItemId }).ToList()
                 };
 
                 payrollSummaryDTO.Rows.Add(row);

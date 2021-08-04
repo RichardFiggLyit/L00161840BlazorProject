@@ -4,10 +4,11 @@
 
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin")]
-<h3>Payroll Summary</h3>
+<h3>Payroll Summary<br /><br /></h3>
 @if (@PayrollSummaryDTO != null)
 {
-<h4>@PayrollSummaryDTO.PayGroupName&nbsp;&nbsp;@PayrollSummaryDTO.PayPeriod.ToString()</h4>
+<h4>Group: @PayrollSummaryDTO.PayGroupName</h4>
+<h4>Frequency: @PayrollSummaryDTO.PayPeriod.ToString()</h4>
 <h4>Pay Date: @PayrollSummaryDTO.PayDate.ToString("dd/MM/yyyy")</h4>
 <h4>Tax Year: @PayrollSummaryDTO.TaxYear&nbsp;&nbsp;Tax Period: @PayrollSummaryDTO.TaxPeriod</h4>
 

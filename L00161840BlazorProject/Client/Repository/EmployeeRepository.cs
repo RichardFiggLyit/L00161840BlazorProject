@@ -18,9 +18,9 @@ namespace L00161840BlazorProject.Client.Repository
             this.httpService = httpService;
         }
 
-        public async Task<PaginatedResponse<List<Employee>>> GetEmployees(PaginationDTO paginationDTO)
+        public async Task<PaginatedResponse<List<EmployeeOverviewDTO>>> GetEmployees(PaginationDTO paginationDTO)
         {
-            return await httpService.GetHelper<List<Employee>>(url, paginationDTO);
+            return await httpService.GetHelper<List<EmployeeOverviewDTO>>(url, paginationDTO);
         }
 
         public async Task<List<Employee>> GetEmployeesBySurname(string name)
@@ -36,6 +36,10 @@ namespace L00161840BlazorProject.Client.Repository
         public async Task<Employee> GetEmployeeById(int id)
         {
             return await httpService.GetHelper<Employee>($"{url}/{id}");
+        }
+        public async Task<List<PayslipOverviewDTO>> GetPayslipOverview(int id)
+        {
+            return await httpService.GetHelper<List<PayslipOverviewDTO>>($"{url}/payslip/overview/{id}");
         }
 
         public async Task CreateEmployee(Employee employee)
@@ -64,6 +68,12 @@ namespace L00161840BlazorProject.Client.Repository
                 throw new ApplicationException(await response.GetBody());
             }
             return response.Response;
+        }
+
+        public async Task<PayslipDTO> GetPayslip(int id)
+        {
+            return  await httpService.GetHelper<PayslipDTO>($"{url}/payslip/{id}");
+
         }
 
         public async Task DeleteEmployee(int Id)

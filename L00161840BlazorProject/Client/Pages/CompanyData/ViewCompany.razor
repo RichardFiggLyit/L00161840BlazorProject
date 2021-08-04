@@ -1,7 +1,7 @@
 ﻿@page "/company"
+@using System.Security.Claims
 @inject ICompanyRepository companyRepository
 @inject IPayGroupRepository payGroupRepository
-
 @inject NavigationManager navigationManager
 @inject IJSRuntime js
 @attribute [Authorize]
@@ -78,7 +78,7 @@
         //    Alert.ShowError(ex.Message);
         //}
         var authState = await AuthenticationState;
-        var role = authState.User.Claims.FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+        var role = authState.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
         if (role == "Admin")
             IsRestricted = false;
         Company = await companyRepository.GetCompany();

@@ -1,264 +1,271 @@
-﻿@page "/test"
-<style type="text/css">
+﻿@page "/payroll/payslip/{PayDataId:int}"
+@inject IEmployeeRepository employeeRepository
+@using System.Security.Claims
+@if (payslip != null)
+{
+    @if (isAdmin)
+    {
+        <h5><a href="/payroll/view/@payPeriodId"><strong>Go to Payroll summary...</strong></a></h5>
+    }
+    <h5><a href="/employee/view/@employeeId"><strong>Go to Employee summary...</strong></a></h5><br />
+    <style type="text/css">
 
-        .outer-border {border-top:solid 1px #dadbdc}
-        .inner-border {padding:20px 0;}
-        .inner-border h2 {margin:0 0 20px 0;color:#db7100}
-        .inner-border .label-value {display:table;width:100%}
-        .inner-border .label-value h3 {display:table-cell;margin:0;padding:2px 15px 3px 0;vertical-align:top;text-align:left;font-size:10pt;line-height:14pt;font-weight:normal;color:#444}
-        .inner-border .label-value p {display:table-cell;margin:0;padding:2px 0 3px 0;vertical-align:top;text-align:right;font-size:10pt;line-height:14pt;font-weight:bold;}
-        .inner-border p.total {margin-bottom:15px;font-size:28pt;line-height:28pt;font-weight:300;}
+        .outer-border {
+            border-top: solid 1px #dadbdc
+        }
 
+        .inner-border {
+            padding: 20px 0;
+        }
 
-</style>
-<h1><strong>Payslip</strong> Week Ending 18 July 2021</h1>
-<div class="container custom-control-inline">
-    <div class="row">
+            .inner-border h2 {
+                margin: 0 0 20px 0;
+                color: #db7100
+            }
 
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <div class="outer-border">
-                <div class="inner-border">
+            .inner-border .label-value {
+                display: table;
+                width: 100%
+            }
 
-                    <h2>Employee Details</h2>
+                .inner-border .label-value h3 {
+                    display: table-cell;
+                    margin: 0;
+                    padding: 2px 15px 3px 0;
+                    vertical-align: top;
+                    text-align: left;
+                    font-size: 10pt;
+                    line-height: 14pt;
+                    font-weight: normal;
+                    color: #444
+                }
 
-                    <div class="label-value">
-                        <h3>Name</h3>
-                        <p>Cría Flanagan</p>
+                .inner-border .label-value p {
+                    display: table-cell;
+                    margin: 0;
+                    padding: 2px 0 3px 0;
+                    vertical-align: top;
+                    text-align: right;
+                    font-size: 10pt;
+                    line-height: 14pt;
+                    font-weight: bold;
+                }
+
+            .inner-border p.total {
+                margin-bottom: 15px;
+                font-size: 28pt;
+                line-height: 28pt;
+                font-weight: 300;
+            }
+    </style>
+    <h1><strong>Payslip for @payslip.EmployeeName</strong> Paid on @payslip.PayDate.ToLongDateString()</h1>
+    <div class="container custom-control-inline">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="outer-border">
+                    <div class="inner-border">
+                        <h2>Employee Details</h2>
+                        <div class="label-value">
+                            <h3>Name</h3>
+                            <p>@payslip.EmployeeName</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>PPS Number</h3>
+                            <p>@payslip.PPSN</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Payroll Reference</h3>
+                            <p>@payslip.PayrollReference</p>
+                        </div>
+
+                        <div class="label-value">
+                            <h3>Pay Group</h3>
+                            <p>@payslip.PayGroupName</p>
+                        </div>
+
+                        <div class="label-value">
+                            <h3>Frequency</h3>
+                            <p>@payslip.PayPeriod.ToString()</p>
+                        </div>
+
                     </div>
-
-                    <div class="label-value">
-                        <h3>PPS Number</h3>
-                        <p>2241826Q</p>
-                    </div>
-
-
-
-
-                    <div class="label-value">
-                        <h3>Calculation basis</h3>
-                        <p>Emergency</p>
-                    </div>
-
-                    <div class="label-value">
-                        <h3>PRSI class</h3>
-                        <p>A0</p>
-                    </div>
-
-
-
-
-
-
-                    <div class="label-value hide-for-apr-request">
-                        <h3>Annual leave remaining</h3>
-                        <p>3.09 hours</p>
-                    </div>
-
-
-
-
                 </div>
             </div>
-        </div>
 
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <div class="outer-border">
-                <div class="inner-border">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="outer-border">
+                    <div class="inner-border">
 
-                    <h2>Additions</h2>
+                        <h2>Additions</h2>
+                        @foreach (var addition in payslip.Addition)
+                        {
+                            <div class="label-value">
+                                <h3>@addition.Description</h3>
+                                <p>@addition.Amount.ToEuro()</p>
+                            </div>
+                        }
 
-                    <div class="label-value">
-                        <h3>7 hours  €7.14</h3>
-                        <p>€49.98</p>
                     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </div>
             </div>
-        </div>
 
-        <div class="clearfix visible-sm-block"></div>
+            <div class="clearfix visible-sm-block"></div>
 
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <div class="outer-border">
-                <div class="inner-border">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="outer-border">
+                    <div class="inner-border">
 
-                    <h2>Deductions</h2>
+                        <h2>Deductions</h2>
 
-                    <div class="label-value">
-                        <h3>Tax</h3>
-                        <p>€10.00</p>
+                        @foreach (var deduction in payslip.Deduction)
+                        {
+                            <div class="label-value">
+                                <h3>@deduction.Description</h3>
+                                <p>@deduction.Amount.ToEuro()</p>
+                            </div>
+                        }
                     </div>
-                    <div class="label-value">
-                        <h3>USC</h3>
-                        <p>€4.00</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>PRSI</h3>
-                        <p>€0.00</p>
-                    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </div>
             </div>
-        </div>
 
-        <div class="clearfix visible-md-block visible-lg-block"></div>
+            <div class="clearfix visible-md-block visible-lg-block"></div>
 
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <div class="outer-border">
-                <div class="inner-border">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="outer-border">
+                    <div class="inner-border">
 
-                    <h2>Totals - This Pay Period</h2>
+                        <h2>Totals - This Pay Period</h2>
 
-                    <div class="label-value">
-                        <h3>Taxable gross pay</h3>
-                        <p>€49.98</p>
+                        <div class="label-value">
+                            <h3>Gross</h3>
+                            <p>@payslip.Gross.ToEuro()</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Net</h3>
+                            <p>@payslip.Net.ToEuro()</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Employer PRSI</h3>
+                            <p>@payslip.ERPRSI.ToEuro()</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Tax Period</h3>
+                            <p>@payslip.TaxPeriod</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Tax Year</h3>
+                            <p>@payslip.TaxYear</p>
+                        </div>
+
+
+
                     </div>
-                    <div class="label-value">
-                        <h3>USC-able gross pay</h3>
-                        <p>€49.98</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>PRSI (Employer)</h3>
-                        <p>€4.40</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>Net pay</h3>
-                        <p>€35.98</p>
-                    </div>
-
-
-
                 </div>
             </div>
-        </div>
 
-        <div class="clearfix visible-sm-block"></div>
+            <div class="clearfix visible-sm-block"></div>
 
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <div class="outer-border">
-                <div class="inner-border">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="outer-border">
+                    <div class="inner-border">
 
-                    <h2>Totals - Year to Date</h2>
+                        <h2>Company</h2>
 
-                    <div class="label-value">
-                        <h3>Taxable gross pay</h3>
+                        <div class="label-value">
+                            <h3>Name</h3>
+                            <p>@payslip.CompanyName</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Tax Reference</h3>
+                            <p>@payslip.TaxReference</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Address 1</h3>
+                            <p>@payslip.Address1</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Address 2</h3>
+                            <p>@payslip.Address2</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Address 3</h3>
+                            <p>@payslip.Address3</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Address 4</h3>
+                            <p>@payslip.Address4</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Address 5</h3>
+                            <p>@payslip.Address5</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Contact Phone</h3>
+                            <p>@payslip.Phone</p>
+                        </div>
+                        <div class="label-value">
+                            <h3>Contact Email</h3>
+                            <p>@payslip.AdminEmail</p>
+                        </div>
 
-                        <p>€276.03</p>
                     </div>
-                    <div class="label-value">
-                        <h3>Tax</h3>
-
-                        <p>€55.21</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>USC-able gross pay</h3>
-
-                        <p>€276.03</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>USC</h3>
-
-                        <p>€22.08</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>PRSI (Employee)</h3>
-
-                        <p>€0.00</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>PRSI (Employer)</h3>
-
-                        <p>€24.29</p>
-                    </div>
-                    <div class="label-value">
-                        <h3>Insurable weeks</h3>
-
-                        <p>4</p>
-                    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </div>
             </div>
-        </div>
 
-        <div class="col-xs-12 col-sm-6 col-md-4">
-            <div class="outer-border">
-                <div class="inner-border">
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="outer-border">
+                    <div class="inner-border">
 
-                    <h2>Payment</h2>
+                        <h2>Payment</h2>
 
-                    <p class="total">€35.98</p>
+                        <p class="total">@payslip.Net.ToEuro()</p>
 
-                    <div class="label-value">
-                        <h3>Pay date</h3>
-                        <p>22 July 2021</p>
+                        <div class="label-value">
+                            <h3>Pay date</h3>
+                            <p>@payslip.PayDate.ToString("dd/MM/yyyy")</p>
+                        </div>
                     </div>
-
                 </div>
             </div>
+
+            <div class="clearfix visible-md-block"></div>
+
         </div>
-
-        <div class="clearfix visible-md-block"></div>
-
     </div>
-</div>
+}
+@if (payslip == null)
+{
+    <h3>@pageMessage</h3>
+}
 @code {
+    [CascadingParameter] Alert Alert { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    [Parameter] public int PayDataId { get; set; }
+    private int payPeriodId = 0;
+    private int employeeId = 0;
+    private PayslipDTO payslip;
+    private bool isAdmin = false;
+    string pageMessage = "Loading...";
     //Used Brightpay Connect payslip HTML as reference
 
 
- }
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            payslip = await employeeRepository.GetPayslip(PayDataId);
+            payPeriodId = payslip.PayPeriodId;
+            employeeId = payslip.EmployeeId;
+            var authState = await AuthenticationState;
+            isAdmin = authState.User.IsAdmin();
+
+        }
+        catch
+        {
+            payslip = null;
+            pageMessage = "Error - Data could not be loaded!";
+        }
+
+    }
+
+}
