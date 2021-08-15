@@ -61,6 +61,8 @@ namespace L00161840BlazorProject.Server.Controllers
             var identityUser = await _userManager.FindByEmailAsync(userInfo.Email);
             //string resetToken = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
             //IdentityResult passwordChangeResult = await _userManager.ResetPasswordAsync(identityUser, resetToken, "Ab123456!");
+            if (identityUser == null)
+                return BadRequest("Invalid login attempt");
 
             var result = await _signInManager.PasswordSignInAsync(identityUser.UserName,
                 userInfo.Password, isPersistent: false, lockoutOnFailure: false);

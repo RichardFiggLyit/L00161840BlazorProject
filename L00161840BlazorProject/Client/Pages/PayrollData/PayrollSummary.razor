@@ -57,32 +57,32 @@
                             @record.PPSN
                         </td>
                         <td>
-                            @record.Gross.ToString(NF)
+                            @record.Gross.ToEuro()
                         </td>
                         <td>
-                            @record.BasicHours.ToString(NF)
+                            @record.BasicHours.ToEuro()
                         </td>
                         <td>
-                            @record.BasicRate.ToString(NF)
+                            @record.BasicRate.ToEuro()
                         </td>
                         @foreach (var item in PayrollSummaryDTO.Payments)
                         {
 
-                            <td>@((record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0).ToString(NF))</td>
+                            <td>@((record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0).ToEuro())</td>
                         }
-                        <td>@record.PAYE.ToString(NF)</td>
-                        <td>@record.USC.ToString(NF)</td>
-                        <td>@record.EEPRSI.ToString(NF)</td>
-                        <td>@record.LPT.ToString(NF)</td>
+                        <td>@record.PAYE.ToEuro()</td>
+                        <td>@record.USC.ToEuro()</td>
+                        <td>@record.EEPRSI.ToEuro()</td>
+                        <td>@record.LPT.ToEuro()</td>
                         @foreach (var item in PayrollSummaryDTO.Deductions)
                         {
-                            <td>@((0.0-(record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToString(NF))</td>
+                            <td>@((0.0-(record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToEuro())</td>
                         }
                         <td>
-                            @record.Net.ToString(NF)
+                            @record.Net.ToEuro()
                         </td>
                         <td>
-                            @record.ERPRSI.ToString(NF)
+                            @record.ERPRSI.ToEuro()
                         </td>
                     </tr>
                 }
@@ -93,23 +93,23 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Gross).ToString(NF)</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.BasicHours).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Gross).ToEuro()</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.BasicHours).ToEuro()</td>
                     <td></td>
                     @foreach (var item in PayrollSummaryDTO.Payments)
                     {
-                        <td>@((PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToString(NF))</td>
+                        <td>@((PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToEuro())</td>
                     }
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.PAYE).ToString(NF)</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.USC).ToString(NF)</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.EEPRSI).ToString(NF)</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.LPT).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.PAYE).ToEuro()</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.USC).ToEuro()</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.EEPRSI).ToEuro()</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.LPT).ToEuro()</td>
                     @foreach (var item in PayrollSummaryDTO.Deductions)
                     {
-                        <td>@((0.0-(PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0))).ToString(NF))</td>
+                        <td>@((0.0-(PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0))).ToEuro())</td>
                     }
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Net).ToString(NF)</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.ERPRSI).ToString(NF)</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Net).ToEuro()</td>
+                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.ERPRSI).ToEuro()</td>
                 </tr>
             </tfoot>
         </table>
@@ -118,7 +118,6 @@
 }
 @code {
     [Parameter] public int PayPeriodId { get; set; }
-    private readonly string NF = "#,###,###,##0.00";
     PayrollSummaryDTO PayrollSummaryDTO;
 
     protected override async Task OnInitializedAsync()

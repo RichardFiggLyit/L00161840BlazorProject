@@ -1,0 +1,45 @@
+﻿@inject DialogService DialogService
+
+<RadzenTemplateForm TItem="AnnualLeaveRequest" Data="@model" Submit=@OnSubmit>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Start" />
+        </div>
+        <div class="col">
+            <RadzenDatePicker @bind-Value="@model.StartDate" Name="Start" ShowTime="true" />
+            <RadzenRequiredValidator Text="Start is required" Component="Start" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="End" />
+        </div>
+        <div class="col">
+            <RadzenDatePicker Name="End" @bind-Value="@model.EndDate" ShowTime="true" />
+            <RadzenRequiredValidator Component="End" Text="End is required" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+@code {
+    [Parameter]
+    public AnnualLeaveRequest Appointment { get; set; }
+
+    AnnualLeaveRequest model = new AnnualLeaveRequest();
+
+    protected override void OnParametersSet()
+    {
+        Appointment.Status = AnnualLeaveRequestStatus.Approved;
+        model = Appointment;
+    }
+
+    void OnSubmit(AnnualLeaveRequest model)
+    {
+        DialogService.Close(model);
+    }
+}

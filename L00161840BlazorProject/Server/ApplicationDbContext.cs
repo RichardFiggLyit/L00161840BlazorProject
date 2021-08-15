@@ -23,5 +23,9 @@ namespace L00161840BlazorProject.Server
         public DbSet<PayPeriod> PayPeriods { get; set; }
         public DbSet<PayslipItem> PayslipItems { get; set; }
         public DbSet<Invite> Invites { get; set; }
+
+        public DbSet<AnnualLeaveEntitlement> AnnualLeaveEntitlements { get; set; }
+        public DbSet<AnnualLeaveRequest> AnnualLeaveRequests { get; set; }
+        public DbSet<AnnualLeaveTaken> AnnualLeaveTaken { get; set; }
     }
 }

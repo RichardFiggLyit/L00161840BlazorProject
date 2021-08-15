@@ -91,9 +91,9 @@
             IsAdmin = false
         };
         var inviteDetails = await inviteRepository.CreateInvite(invite);
-        var url = Navigator.BaseUri + "/register?InviteReference=" + inviteDetails.InviteReference;
-        await emailService.SendEmail("info@portal.com", employee.Email, "Invite to payroll portal", String.Format("<p>Hi {0},</p><br/><p>Please click below to complete your registration to our employer portal</p><a href=\"{1}\">{1}</a>", employee.Forename, url));
-
+        var url = Navigator.BaseUri + "register?InviteReference=" + inviteDetails.InviteReference;
+        await emailService.SendEmail("info@portal.com", employee.Email, "Invite to payroll portal", String.Format("<html><p>Hi {0},</p><br/><p>Please click below to complete your registration to our employer portal</p><a href=\"{1}\">{1}</a></html>", employee.Forename, url));
+        await LoadEmployees();
 
     }
 }

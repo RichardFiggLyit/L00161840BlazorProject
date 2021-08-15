@@ -134,6 +134,7 @@
     List<PayGroup> PayGroups;
     List<PayItem> PayItems = new List<PayItem>();
     List<PayItem> PayItemsDB = new List<PayItem>();
+    private Period frequency = Period.Weekly;
     private int _payGroupId;
     public int payGroupId
     {
@@ -143,6 +144,7 @@
             _payGroupId = value;
             ExistingPeriodId = -1;
             UpdateTaxPeriods();
+            payDate = PayPeriodHelper.SuggestedMaxPayDate(taxYear, taxPeriod, frequency);
         }
     }
     private int _taxPeriod = 1;
@@ -152,6 +154,7 @@
         set
         {
             _taxPeriod = value;
+            payDate = PayPeriodHelper.SuggestedMaxPayDate(taxYear, taxPeriod, frequency);
             ExistingPeriodId = -1;
         }
     }
@@ -162,6 +165,7 @@
         set
         {
             _taxYear = value;
+            payDate = PayPeriodHelper.SuggestedMaxPayDate(taxYear, taxPeriod, frequency);
             ExistingPeriodId = -1;
         }
     }
@@ -262,6 +266,7 @@
         csvData = new List<List<string>>();
         headers = null;
         ExistingPeriodId = -1;
+        navigationManager.NavigateTo($"/payroll/view/{periodId}");
     }
     private async Task CheckPeriodExists()
     {
@@ -396,7 +401,8 @@
         else
         {
             var payGroup = PayGroups.FirstOrDefault(x => x.Id == payGroupId);
-            switch (payGroup.Period)
+            frequency = payGroup.Period;
+            switch (frequency)
             {
                 case Period.Fortnightly:
                     totalPeriods = 27;

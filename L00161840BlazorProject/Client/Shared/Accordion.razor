@@ -26,7 +26,7 @@
     [Parameter] public string CardHeaderTitle { get; set; }
 
 
-    [Parameter] public bool ShowCardBody { get; set; } = false;
+    [Parameter] public bool ShowCardBody { get; set; } = true;
     public string BtnClass => ShowCardBody ? "oi oi-collapse-up" : "oi oi-collapse-down";
     public void Toggle()
     {

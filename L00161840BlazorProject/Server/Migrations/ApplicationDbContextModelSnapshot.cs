@@ -19,6 +19,103 @@ namespace L00161840BlazorProject.Server.Migrations
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Entitlment")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Taken")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaxYear")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("AnnualLeaveEntitlements");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("AnnualLeaveEntitlementId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DaysTaken")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RequestedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RequestedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StatusSetBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StatusSetTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnnualLeaveEntitlementId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("AnnualLeaveRequests");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveTaken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AnnualLeaveEntitlementId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AnnualLeaveRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DaysTaken")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnnualLeaveEntitlementId");
+
+                    b.HasIndex("AnnualLeaveRequestId");
+
+                    b.ToTable("AnnualLeaveTaken");
+                });
+
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -135,7 +232,9 @@ namespace L00161840BlazorProject.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("EmployeeId")
+                        .IsUnique()
+                        .HasFilter("[EmployeeId] IS NOT NULL");
 
                     b.ToTable("Invites");
                 });
@@ -475,11 +574,56 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Invite", b =>
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", b =>
                 {
                     b.HasOne("L00161840BlazorProject.Shared.Entities.Employee", "Employee")
                         .WithMany()
-                        .HasForeignKey("EmployeeId");
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", b =>
+                {
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", null)
+                        .WithMany("AnnualLeaveRequests")
+                        .HasForeignKey("AnnualLeaveEntitlementId");
+
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveTaken", b =>
+                {
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", "AnnualLeaveEntitlement")
+                        .WithMany()
+                        .HasForeignKey("AnnualLeaveEntitlementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", "AnnualLeaveRequest")
+                        .WithMany("AnnualLeaveTaken")
+                        .HasForeignKey("AnnualLeaveRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AnnualLeaveEntitlement");
+
+                    b.Navigation("AnnualLeaveRequest");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Invite", b =>
+                {
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.Employee", "Employee")
+                        .WithOne("Invite")
+                        .HasForeignKey("L00161840BlazorProject.Shared.Entities.Invite", "EmployeeId");
 
                     b.Navigation("Employee");
                 });
@@ -517,7 +661,7 @@ namespace L00161840BlazorProject.Server.Migrations
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.PayslipItem", b =>
                 {
                     b.HasOne("L00161840BlazorProject.Shared.Entities.PayData", "PayData")
-                        .WithMany()
+                        .WithMany("PayslipItems")
                         .HasForeignKey("PayDataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -582,6 +726,26 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", b =>
+                {
+                    b.Navigation("AnnualLeaveRequests");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", b =>
+                {
+                    b.Navigation("AnnualLeaveTaken");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Employee", b =>
+                {
+                    b.Navigation("Invite");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.PayData", b =>
+                {
+                    b.Navigation("PayslipItems");
                 });
 
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.PayPeriod", b =>

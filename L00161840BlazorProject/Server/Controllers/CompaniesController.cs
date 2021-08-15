@@ -84,14 +84,7 @@ namespace L00161840BlazorProject.Server.Controllers
             
             foreach (var record in payDatum)
             {
-                //var employee = await context.Employees.FirstOrDefaultAsync(x => x.Id == record.EmployeeId);
-                //var payslipItems = await context.PayslipItems.Where(x => x.PayDataId == record.Id).Select(x=> new PayslipItemDTO
-                //{
-                //    Amount = x.Amount,
-                //    Id = x.Id,
-                //    PayDataId = x.PayDataId,
-                //    PayItemId = x.PayItemId
-                //}).ToListAsync();
+
                 PayrollSummaryDTO.Row row = new PayrollSummaryDTO.Row()
                 { 
                     PayDataId = record.Id,
@@ -124,6 +117,14 @@ namespace L00161840BlazorProject.Server.Controllers
             await context.SaveChangesAsync();
             return NoContent();
 
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<int>> Post(Company company)
+        {
+            context.Add(company);
+            await context.SaveChangesAsync();
+            return company.Id;
         }
 
     }

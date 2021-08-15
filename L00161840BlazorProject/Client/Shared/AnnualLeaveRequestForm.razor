@@ -1,0 +1,60 @@
+﻿@inject DialogService DialogService
+@using L00161840BlazorProject.Client.Pages.AnnualLeavePages
+<RadzenDialog />
+
+        <div style="width: 900px; height: 800px">
+            <RadzenScheduler @ref=@scheduler Style="width: 900px; height: 800px" TItem="AnnualLeaveRequest" Data=@AnnualLeaveRequests StartProperty="StartDate" EndProperty="EndDate"
+                             TextProperty="StatusDescription" SelectedIndex="0"
+                             SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
+                <RadzenMonthView />
+            </RadzenScheduler>
+        </div>
+
+    @code {
+        RadzenScheduler<AnnualLeaveRequest> scheduler;
+        public EmployeeAnnualLeaveRequestDTO EmployeeAnnualLeaveRequestDTO;
+        Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
+        public List<AnnualLeaveRequest> AnnualLeaveRequests = new List<AnnualLeaveRequest>();
+        async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
+        {
+
+            
+            AnnualLeaveRequest data = await DialogService.OpenAsync<AddRequestPage>("Add Annual Leave",
+            new Dictionary<string, object> { { "Start", args.Start.GetStartOfDay() }, { "End", args.Start.GetEndOfDay() } });
+            if (data != null)
+            {
+                AnnualLeaveRequests.Add(data);
+                // Either call the Reload method or reassign the Data property of the Scheduler
+                await scheduler.Reload();
+            }
+        }
+
+        async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AnnualLeaveRequest> args)
+        {
+
+
+            await DialogService.OpenAsync<EditRequestPage>("Edit Annual Leave", new Dictionary<string, object> { { "Appointment", args.Data } });
+
+            await scheduler.Reload();
+        }
+
+        void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AnnualLeaveRequest> args)
+        {
+            // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+            switch (args.Data.Status)
+            {
+                case AnnualLeaveRequestStatus.Declined:
+                    args.Attributes["style"] = "background: red";
+                    break;
+                case AnnualLeaveRequestStatus.Pending:
+                    args.Attributes["style"] = "background: orange";
+                    break;
+                case AnnualLeaveRequestStatus.Approved:
+                    args.Attributes["style"] = "background: green";
+                    break;
+
+
+            }
+
+        }
+    }
