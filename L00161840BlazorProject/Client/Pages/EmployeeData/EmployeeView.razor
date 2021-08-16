@@ -60,7 +60,7 @@
                         </RadzenDataGrid>
                     </RadzenTabsItem>
                     <RadzenTabsItem Text="Annual Leave">
-                        <AnnualLeaveRequestForm></AnnualLeaveRequestForm>
+                        <AnnualLeaveRequestForm EmployeeId="EmployeeId" Username="@Username"></AnnualLeaveRequestForm>
                     </RadzenTabsItem>
             </Tabs>
         </RadzenTabs>
@@ -73,6 +73,7 @@
 @code {
     [Parameter] public int EmployeeId { get; set; }
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    public string Username;
 
     public Employee Employee;
     public Employee EmployeeDB;
@@ -81,6 +82,7 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationState;
+        Username = authState.User.Identity.Name;
         isAdmin = authState.User.IsAdmin();
         int userEmployeeId = authState.User.EmployeeId();
 

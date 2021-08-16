@@ -8,6 +8,10 @@ namespace L00161840BlazorProject.Shared.Entities
 {
     public class AnnualLeaveEntitlement
     {
+        public AnnualLeaveEntitlement()
+        {
+
+        }
         public AnnualLeaveEntitlement(int employeeId, int taxYear)
         {
             EmployeeId = employeeId;
@@ -21,6 +25,6 @@ namespace L00161840BlazorProject.Shared.Entities
         public int Entitlment { get; set; } = 20;
         public int Taken { get; set; } = 0;
         public int Remaining { get { return Entitlment - Taken; } }
-        public List<AnnualLeaveRequest> AnnualLeaveRequests { get; set; } = new List<AnnualLeaveRequest>();
+        
     }
 }

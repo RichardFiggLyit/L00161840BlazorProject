@@ -37,7 +37,7 @@ namespace L00161840BlazorProject.Server.Controllers
         [HttpGet("byEmployee/{employeeId}")]
         public async Task<ActionResult<List<AnnualLeaveRequest>>> GetByEmployee(int employeeId)
         {
-            var annualLeaveRequest = await context.AnnualLeaveRequests.Where(x => x.Id == employeeId).ToListAsync();
+            var annualLeaveRequest = await context.AnnualLeaveRequests.Where(x => x.EmployeeId == employeeId).ToListAsync();
             if (annualLeaveRequest == null) { return NotFound(); }
             return annualLeaveRequest;
         }

@@ -4,14 +4,16 @@ using L00161840BlazorProject.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace L00161840BlazorProject.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210816192935_test3")]
+    partial class test3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,7 +78,7 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.Property<string>("StatusSetBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("StatusSetTime")
+                    b.Property<DateTime>("StatusSetTime")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

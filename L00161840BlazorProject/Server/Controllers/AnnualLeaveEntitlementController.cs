@@ -44,12 +44,12 @@ namespace L00161840BlazorProject.Server.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post(AnnualLeaveEntitlement annualLeaveEntitlement)
+        public async Task<ActionResult<AnnualLeaveEntitlement>> Post(AnnualLeaveEntitlement annualLeaveEntitlement)
         {
 
             context.Add(annualLeaveEntitlement);
             await context.SaveChangesAsync();
-            return annualLeaveEntitlement.Id;
+            return annualLeaveEntitlement;
         }
 
         [HttpPut]

@@ -3,6 +3,7 @@
 @inject ICompanyRepository companyRepository
 @inject IEmailService emailService
 @inject IInviteRepository inviteService
+@inject IAnnualLeaveEntitlementRepository leaveRepo
 <h1>Welcome to my Blazor WASM app of an Employer Portal!</h1>
 
 <p>My name is Richard Figg and I have been programming for 6 years now. The software development course at LYIT has helped me really hone my abilities and filled in the gaps of my knowledge. After many desktop applications, this is my first try and a web app.</p>
@@ -15,6 +16,7 @@
             <h3>Hi @context.User.Identity.Name!</h3>
             <p>Welcome to your Employer portal. The links on the left will help you navigate.</p>
         </div>
+        <button @onclick="Test">Test</button>
     </Authorized>
     <NotAuthorized>
         <h3>Hi, please contact your system administrator for access to your employer portal!</h3>
@@ -25,7 +27,10 @@
 
 @code{
 
-
+    private async Task Test()
+    {
+        
+    }
 
 
 

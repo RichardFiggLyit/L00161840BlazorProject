@@ -9,10 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using L00161840BlazorProject.Server.Controllers;
 using Moq;
+using L00161840BlazorProject.Client.Helpers;
 using L00161840BlazorProject.Shared.Helpers;
 using L00161840BlazorProject.Shared.DTOs;
 
-namespace L00161840BlazorProject.UnitTests.ControllerUnitTests
+namespace L00161840BlazorProject.UnitTests.HelperUnitTests
 {
     [TestClass]
     public class AnnualLeaveHelperUnitTests
@@ -191,6 +192,63 @@ namespace L00161840BlazorProject.UnitTests.ControllerUnitTests
 
         }
 
+        [TestMethod]
+        public void GetTaxYear_Start2021End2021_OneYear()
+        {
+
+            //Arrange
+            var startDate = new DateTime(2021, 08, 09);
+            var endDate = new DateTime(2021, 08, 15);
+            List<int> actualResult;
+
+            List<int> expectedResult = new List<int>() { 2021 };
+
+            //Act
+            actualResult = DateHelpers.GetTaxYears(startDate, endDate);
+
+
+            //Assert
+            Assert.AreEqual(expectedResult.ToStandardString(), actualResult.ToStandardString());
+            Console.WriteLine(actualResult.ToStandardString());
+        }
+        [TestMethod]
+        public void GetTaxYear_Start2021End2022_TwoYear()
+        {
+
+            //Arrange
+            var startDate = new DateTime(2021, 12, 24);
+            var endDate = new DateTime(2022, 01, 06);
+            List<int> actualResult;
+
+            List<int> expectedResult = new List<int>() { 2021, 2022 };
+
+            //Act
+            actualResult = DateHelpers.GetTaxYears(startDate, endDate);
+
+
+            //Assert
+            Assert.AreEqual(expectedResult.ToStandardString(), actualResult.ToStandardString());
+            Console.WriteLine(actualResult.ToStandardString());
+        }
+        [TestMethod]
+        public void GetTaxYear_Start2021End2023_ThreeYears()
+        {
+
+            //Arrange
+            var startDate = new DateTime(2021, 12, 24);
+            var endDate = new DateTime(2023, 01, 06);
+            List<int> actualResult;
+
+            List<int> expectedResult = new List<int>() { 2021, 2022,2023 };
+
+            //Act
+            actualResult = DateHelpers.GetTaxYears(startDate, endDate);
+
+
+            //Assert
+            Assert.AreEqual(expectedResult.ToStandardString(), actualResult.ToStandardString());
+            Console.WriteLine(actualResult.ToStandardString());
+        }
 
     }
 }

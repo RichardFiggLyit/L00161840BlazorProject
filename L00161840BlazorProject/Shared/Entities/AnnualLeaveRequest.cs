@@ -19,8 +19,8 @@ namespace L00161840BlazorProject.Shared.Entities
         public string RequestedBy { get; set; }
         public DateTime RequestedTime { get; set; }
         public string StatusSetBy { get; set; }
-        public DateTime StatusSetTime { get; set; }
-        public List<AnnualLeaveTaken> AnnualLeaveTaken { get; set; }
+        public DateTime? StatusSetTime { get; set; }
+        
         public string StatusDescription
         {
             get

@@ -4,14 +4,16 @@ using L00161840BlazorProject.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace L00161840BlazorProject.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210816191458_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,6 +27,9 @@ namespace L00161840BlazorProject.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AnnualLeaveRequestId")
+                        .HasColumnType("int");
 
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
@@ -52,6 +57,9 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("AnnualLeaveEntitlementId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DaysTaken")
                         .HasColumnType("int");
 
@@ -76,10 +84,12 @@ namespace L00161840BlazorProject.Server.Migrations
                     b.Property<string>("StatusSetBy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("StatusSetTime")
+                    b.Property<DateTime>("StatusSetTime")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnnualLeaveEntitlementId");
 
                     b.HasIndex("EmployeeId");
 
@@ -582,6 +592,12 @@ namespace L00161840BlazorProject.Server.Migrations
 
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", b =>
                 {
+                    b.HasOne("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", null)
+                        .WithMany("AnnualLeaveRequests")
+                        .HasForeignKey("AnnualLeaveEntitlementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("L00161840BlazorProject.Shared.Entities.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
@@ -600,7 +616,7 @@ namespace L00161840BlazorProject.Server.Migrations
                         .IsRequired();
 
                     b.HasOne("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", "AnnualLeaveRequest")
-                        .WithMany()
+                        .WithMany("AnnualLeaveTaken")
                         .HasForeignKey("AnnualLeaveRequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -717,6 +733,16 @@ namespace L00161840BlazorProject.Server.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveEntitlement", b =>
+                {
+                    b.Navigation("AnnualLeaveRequests");
+                });
+
+            modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.AnnualLeaveRequest", b =>
+                {
+                    b.Navigation("AnnualLeaveTaken");
                 });
 
             modelBuilder.Entity("L00161840BlazorProject.Shared.Entities.Employee", b =>

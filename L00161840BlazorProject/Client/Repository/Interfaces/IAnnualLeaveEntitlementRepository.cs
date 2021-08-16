@@ -8,9 +8,9 @@ namespace L00161840BlazorProject.Client.Repository
 {
     public interface IAnnualLeaveEntitlementRepository
     {
-        Task<int> CreateAnnualLeaveEntitlement(AnnualLeaveEntitlement annualLeaveEntitlement);
+        Task<AnnualLeaveEntitlement> CreateAnnualLeaveEntitlement(AnnualLeaveEntitlement annualLeaveEntitlement);
         Task DeleteAnnualLeaveEntitlement(int id);
-        Task<List<AnnualLeaveEntitlement>> GetAnnualLeaveEntitlementByEmployeedId(int employeeId, int taxYear);
+        Task<AnnualLeaveEntitlement> GetAnnualLeaveEntitlementByEmployeedId(int employeeId, int taxYear);
         Task<AnnualLeaveEntitlement> GetAnnualLeaveEntitlementById(int id);
         Task UpdateAnnualLeaveEntitlement(AnnualLeaveEntitlement annualLeaveEntitlement);
     }

@@ -36,6 +36,16 @@ namespace L00161840BlazorProject.Shared.Helpers
                 output = String.Join(";", datesString);
             return output;
         }
+        public static string ToStandardString(this List<int> values)
+        {
+            string output = "";
+            List<string> datesString = new List<string>();
+            foreach (var date in values)
+                datesString.Add(date.ToString());
+            if (datesString.Count > 0)
+                output = String.Join(";", datesString);
+            return output;
+        }
 
     }
 }

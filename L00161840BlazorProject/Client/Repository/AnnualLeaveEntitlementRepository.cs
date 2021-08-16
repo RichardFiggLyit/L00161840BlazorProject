@@ -22,14 +22,14 @@ namespace L00161840BlazorProject.Client.Repository
         {
             return await httpService.GetHelper<AnnualLeaveEntitlement>($"{url}/{id}");
         }
-        public async Task<List<AnnualLeaveEntitlement>> GetAnnualLeaveEntitlementByEmployeedId(int employeeId, int taxYear)
+        public async Task<AnnualLeaveEntitlement> GetAnnualLeaveEntitlementByEmployeedId(int employeeId, int taxYear)
         {
-            return await httpService.GetHelper<List<AnnualLeaveEntitlement>>($"{url}/byEmployee/{employeeId}/{taxYear}");
+            return await httpService.GetHelper<AnnualLeaveEntitlement>($"{url}/byEmployee/{employeeId}/{taxYear}");
         }
 
-        public async Task<int> CreateAnnualLeaveEntitlement(AnnualLeaveEntitlement annualLeaveEntitlement)
+        public async Task<AnnualLeaveEntitlement> CreateAnnualLeaveEntitlement(AnnualLeaveEntitlement annualLeaveEntitlement)
         {
-            var response = await httpService.Post<AnnualLeaveEntitlement, int>(url, annualLeaveEntitlement);
+            var response = await httpService.Post<AnnualLeaveEntitlement, AnnualLeaveEntitlement>(url, annualLeaveEntitlement);
             if (!response.Success)
             {
                 throw new ApplicationException(await response.GetBody());

@@ -29,6 +29,14 @@ namespace L00161840BlazorProject.Client.Helpers
                 var response = await Deserialize<T>(responseHTTP, defaultJsonSerializerOptions);
                 return new HttpResponseWrapper<T>(response, true, responseHTTP);
             }
+            if (responseHTTP.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return new HttpResponseWrapper<T>(default(T), true, responseHTTP);
+            }
+            if (responseHTTP.IsSuccessStatusCode)
+            {
+                return new HttpResponseWrapper<T>(default(T), true, responseHTTP);
+            }
             else
             {
                 return new HttpResponseWrapper<T>(default, false, responseHTTP);
