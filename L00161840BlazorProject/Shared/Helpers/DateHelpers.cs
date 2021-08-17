@@ -16,6 +16,10 @@ namespace L00161840BlazorProject.Shared.Helpers
         {
             return new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
         }
+        public static string ToStandardString(this DateTime date)
+        {
+            return date.ToString("dd/MM/yyyy");
+        }
         public static List<int> GetTaxYears(DateTime startDate, DateTime endDate)
         {
             return Enumerable.Range(startDate.Year, (endDate.Year - startDate.Year) + 1).ToList();

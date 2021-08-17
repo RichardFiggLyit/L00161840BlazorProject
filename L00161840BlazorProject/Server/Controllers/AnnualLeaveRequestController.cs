@@ -41,6 +41,14 @@ namespace L00161840BlazorProject.Server.Controllers
             if (annualLeaveRequest == null) { return NotFound(); }
             return annualLeaveRequest;
         }
+        [HttpGet("all")]
+        public async Task<ActionResult<List<AnnualLeaveRequest>>> GetAll()
+        {
+            var annualLeaveTaken = await context.AnnualLeaveRequests.Include(x => x.Employee).OrderBy(x=>x.StartDate).ToListAsync();
+            if (annualLeaveTaken == null) { return NotFound(); }
+            return annualLeaveTaken;
+        }
+
 
 
         [HttpPost]

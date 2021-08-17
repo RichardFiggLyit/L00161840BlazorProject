@@ -10,6 +10,7 @@ namespace L00161840BlazorProject.Client.Repository
     {
         Task<int> CreateAnnualLeaveRequest(AnnualLeaveRequest annualLeaveRequest);
         Task DeleteAnnualLeaveRequest(int id);
+        Task<List<AnnualLeaveRequest>> GetAll();
         Task<List<AnnualLeaveRequest>> GetAnnualLeaveRequestByEmployeedId(int id);
         Task<AnnualLeaveRequest> GetAnnualLeaveRequestById(int id);
         Task UpdateAnnualLeaveRequest(AnnualLeaveRequest annualLeaveRequest);

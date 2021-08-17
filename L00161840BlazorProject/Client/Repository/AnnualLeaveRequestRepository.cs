@@ -23,6 +23,11 @@ namespace L00161840BlazorProject.Client.Repository
             return await httpService.GetHelper<List<AnnualLeaveRequest>>($"{url}/byEmployee/{id}");
         }
 
+        public async Task<List<AnnualLeaveRequest>> GetAll()
+        {
+            return await httpService.GetHelper<List<AnnualLeaveRequest>>($"{url}/all");
+        }
+
         public async Task UpdateAnnualLeaveRequest(AnnualLeaveRequest annualLeaveRequest)
         {
             var response = await httpService.Put(url, annualLeaveRequest);

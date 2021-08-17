@@ -23,6 +23,13 @@ namespace L00161840BlazorProject.Shared.Entities
         public string NOKName { get; set; }
         public string NOKPhone { get; set; }
         public Invite Invite { get; set; }
+        public string FullName
+        {
+            get
+            {
+                return Forename + " " + Surname;
+            }
+        }
 
         public Employee ShallowCopy()
         {
