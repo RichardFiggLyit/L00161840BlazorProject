@@ -3,51 +3,34 @@
 @inject ICompanyRepository companyRepository
 @inject IEmailService emailService
 @inject IInviteRepository inviteService
-<h1>Hello, world!</h1>
+@inject IAnnualLeaveEntitlementRepository leaveRepo
+<h1>Welcome to my Blazor WASM app of an Employer Portal!</h1>
 
-Welcome to your new app.
-<button class="btn btn-primary" @onclick="CreateInvite">Create Invite</button>
-<AuthorizeView Roles="Admin">
+<p>My name is Richard Figg and I have been programming for 6 years now. The software development course at LYIT has helped me really hone my abilities and filled in the gaps of my knowledge. After many desktop applications, this is my first try and a web app.</p>
+<br /><br />
+
+
+<AuthorizeView>
     <Authorized>
         <div>
-            You are authorized, @context.User.Identity.Name<br /><br />
-            <button class="btn btn-primary" @onclick="CreateInvite">Create Invite</button>
+            <h3>Hi @context.User.Identity.Name!</h3>
+            <p>Welcome to your Employer portal. The links on the left will help you navigate.</p>
         </div>
+        <button @onclick="Test">Test</button>
     </Authorized>
     <NotAuthorized>
-        <SurveyPrompt Title="How is Blazor working for you?" />
-    </NotAuthorized>
-</AuthorizeView>
-<AuthorizeView Roles="Employee">
-    <Authorized>
-        <div>
-            You are authorized, @context.User.Identity.Name<br />
-        </div>
-    </Authorized>
-    <NotAuthorized>
-        <SurveyPrompt Title="How is Blazor working for you?" />
+        <h3>Hi, please contact your system administrator for access to your employer portal!</h3>
     </NotAuthorized>
 </AuthorizeView>
 
 
 
 @code{
-    private async Task SendEmail()
+
+    private async Task Test()
     {
-        await emailService.SendEmail("info@portal.com","test@employee.com","Test Subject","Test body");
-
+        
     }
-    private async Task CreateInvite()
-    {
-        Invite invite = new Invite()
-        {
-            EmployeeId = 1,
-            IsAdmin = false
-        };
-        var inviteReturn = await inviteService.CreateInvite(invite);
-
-    }
-
 
 
 

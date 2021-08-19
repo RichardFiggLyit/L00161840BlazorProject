@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Radzen;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -42,6 +43,16 @@ namespace L00161840BlazorProject.Client
             services.AddScoped<IPayItemRepository, PayItemRepository>();
             services.AddScoped<IPayDataRepository, PayDataRepository>();
             services.AddScoped<IPayslipItemRepository, PayslipItemRepository>();
+
+            services.AddScoped<IAnnualLeaveTakenRepository, AnnualLeaveTakenRepository>();
+            services.AddScoped<IAnnualLeaveEntitlementRepository, AnnualLeaveEntitlementRepository>();
+            services.AddScoped<IAnnualLeaveRequestRepository, AnnualLeaveRequestRepository>();
+
+
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
 
             services.AddScoped<TokenRenewer>();
             services.AddAuthorizationCore();

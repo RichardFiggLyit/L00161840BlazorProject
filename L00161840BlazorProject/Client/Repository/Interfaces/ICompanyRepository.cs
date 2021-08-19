@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace L00161840BlazorProject.Client.Repository
 {
-    interface ICompanyRepository
+    public interface ICompanyRepository
     {
 
         Task<Company> GetCompany();

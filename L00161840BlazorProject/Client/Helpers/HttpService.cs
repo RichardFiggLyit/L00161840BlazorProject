@@ -24,10 +24,18 @@ namespace L00161840BlazorProject.Client.Helpers
         {
             var responseHTTP = await httpClient.GetAsync(url);
 
-            if (responseHTTP.IsSuccessStatusCode)
+            if (responseHTTP.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var response = await Deserialize<T>(responseHTTP, defaultJsonSerializerOptions);
                 return new HttpResponseWrapper<T>(response, true, responseHTTP);
+            }
+            if (responseHTTP.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return new HttpResponseWrapper<T>(default(T), true, responseHTTP);
+            }
+            if (responseHTTP.IsSuccessStatusCode)
+            {
+                return new HttpResponseWrapper<T>(default(T), true, responseHTTP);
             }
             else
             {
@@ -56,7 +64,7 @@ namespace L00161840BlazorProject.Client.Helpers
             var dataJson = JsonSerializer.Serialize(data);
             var stringContent = new StringContent(dataJson, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(url, stringContent);
-            if (response.IsSuccessStatusCode)
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var responseDeserialized = await Deserialize<TResponse>(response, defaultJsonSerializerOptions);
                 return new HttpResponseWrapper<TResponse>(responseDeserialized, true, response);

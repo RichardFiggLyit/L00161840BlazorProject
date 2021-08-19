@@ -37,22 +37,6 @@ namespace L00161840BlazorProject.Client.Repository
             return response.Response;
         }
 
-        //public async Task UpdateCompany(Company company)
-        //{
-        //    var response = await httpService.Put(url, company);
-        //    if (!response.Success)
-        //    {
-        //        throw new ApplicationException(await response.GetBody());
-        //    }
-        //}
 
-        //public async Task DeleteCompany(int Id)
-        //{
-        //    var response = await httpService.Delete($"{url}/{Id}");
-        //    if (!response.Success)
-        //    {
-        //        throw new ApplicationException(await response.GetBody());
-        //    }
-        //}
     }
 }

@@ -67,7 +67,14 @@ namespace L00161840BlazorProject.Client.Repository
         }
         public async Task<List<UserEmployeeDTO>> GetEmployees()
         {
-            return await httpService.GetHelper<List<UserEmployeeDTO>>($"{url}/getEmployees");
+            try
+            {
+                return await httpService.GetHelper<List<UserEmployeeDTO>>($"{url}/getEmployees");
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(ex.Message);
+            }
         }
 
         public async Task AssignRole(EditRoleDTO editRole)
@@ -79,7 +86,7 @@ namespace L00161840BlazorProject.Client.Repository
             }
         }
 
-        public async Task RemoveRole(EditRoleDTO editRole)
+        public async Task RemoveRole(EditRoleDTO editRole) 
         {
             var response = await httpService.Post($"{url}/removeRole", editRole);
             if (!response.Success)

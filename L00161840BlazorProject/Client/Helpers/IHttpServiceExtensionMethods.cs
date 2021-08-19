@@ -13,6 +13,7 @@ namespace L00161840BlazorProject.Client.Helpers
             var response = await httpService.Get<T>(url);
             if (!response.Success)
             {
+                //return default(T);
                 throw new ApplicationException(await response.GetBody());
             }
             return response.Response;

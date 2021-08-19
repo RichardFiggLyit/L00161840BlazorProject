@@ -1,0 +1,99 @@
+﻿@page "/employee/overview"
+@inject IEmployeeRepository employeeRepository
+@inject IInviteRepository inviteRepository
+@inject IEmailService emailService
+@inject NavigationManager Navigator
+
+<Pagination CurrentPage="@paginationDTO.Page" SelectedPage="SelectedPage"
+            TotalAmountPages="totalAmountOfPages"></Pagination>
+<h3>Employee Overview</h3>
+<GenericList List="Employees">
+    <WholeListTemplate>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Payroll Reference</th>
+                    <th>PPSN</th>
+                    <th>Forename</th>
+                    <th>Surname</th>
+                    <th>Email</th>
+                    <th>Invite Status</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var employee in Employees)
+                {
+                    <tr>
+                        <td>
+                            <a href="/employee/view/@employee.Id" class="btn btn-success">Edit</a>
+                        </td>
+                        <td>
+                            @employee.PayrollReference
+                        </td>
+                        <td>
+                            @employee.PPSN
+                        </td>
+                        <td>
+                            @employee.Forename
+                        </td>
+                        <td>
+                            @employee.Surname
+                        </td>
+                        <td>
+                            @employee.Email
+                        </td>
+                        <td>
+                            @employee.InviteStatus.ToString().Replace("_", " ")
+                        </td>
+                        <td>
+                            @if (employee.InviteStatus == InviteStatus.Not_Invited)
+                            {
+                                <button class="btn btn-primary" @onclick="() => InviteEmployee(employee)">Invite</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </WholeListTemplate>
+</GenericList>
+
+@code {
+    PaginationDTO paginationDTO = new PaginationDTO();
+    int totalAmountOfPages;
+    List<EmployeeOverviewDTO> Employees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEmployees();
+    }
+    private async Task SelectedPage(int page)
+    {
+        paginationDTO.Page = page;
+        await LoadEmployees();
+
+    }
+    private async Task LoadEmployees()
+    {
+        var paginatedResponse = await employeeRepository.GetEmployees(paginationDTO);
+        Employees = paginatedResponse.Response;
+        totalAmountOfPages = paginatedResponse.TotalAmountPages;
+    }
+    private async Task InviteEmployee(EmployeeOverviewDTO employee)
+    {
+        Invite invite = new Invite()
+        {
+            Email = employee.Email,
+            EmployeeId = employee.Id,
+            IsAccepted = false,
+            IsAdmin = false
+        };
+        var inviteDetails = await inviteRepository.CreateInvite(invite);
+        var url = Navigator.BaseUri + "register?InviteReference=" + inviteDetails.InviteReference;
+        await emailService.SendEmail("info@portal.com", employee.Email, "Invite to payroll portal", String.Format("<html><p>Hi {0},</p><br/><p>Please click below to complete your registration to our employer portal</p><a href=\"{1}\">{1}</a></html>", employee.Forename, url));
+        await LoadEmployees();
+
+    }
+}

@@ -31,7 +31,7 @@ namespace L00161840BlazorProject.Server.Controllers
         }
 
 
-
+        [AllowAnonymous]
         [HttpGet("{inviteReference}")]
         public async Task<ActionResult<Invite>> Get(string inviteReference)
         {
@@ -74,7 +74,7 @@ namespace L00161840BlazorProject.Server.Controllers
         [HttpPut]
         public async Task<ActionResult> Put(Invite invite)
         {
-            var CompanyDB = await context.Invites.FirstOrDefaultAsync(x => x.Id == invite.Id);
+            var CompanyDB = await context.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id);
 
             if (CompanyDB == null) { return NotFound(); }
 

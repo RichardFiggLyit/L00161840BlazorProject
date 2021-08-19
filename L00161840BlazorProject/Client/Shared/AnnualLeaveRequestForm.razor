@@ -1,0 +1,69 @@
+﻿@inject DialogService DialogService
+@inject IAnnualLeaveRequestRepository requestRepository
+@using L00161840BlazorProject.Client.Pages.AnnualLeavePages
+<RadzenDialog />
+
+        <div style="width: 900px; height: 800px">
+            <RadzenScheduler @ref=@scheduler Style="width: 900px; height: 800px" TItem="AnnualLeaveRequest" Data=@AnnualLeaveRequests StartProperty="StartDate" EndProperty="EndDate"
+                             TextProperty="StatusDescription" SelectedIndex="0"
+                             SlotSelect=@OnSlotSelect AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
+                <RadzenMonthView />
+            </RadzenScheduler>
+        </div>
+
+    @code {
+        [Parameter] public int EmployeeId { get; set; }
+        [Parameter] public string Username { get; set; }
+        RadzenScheduler<AnnualLeaveRequest> scheduler;
+
+        Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
+        public List<AnnualLeaveRequest> AnnualLeaveRequests = new List<AnnualLeaveRequest>();
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadRequests();
+        }
+        public async Task LoadRequests()
+        {
+            AnnualLeaveRequests = await requestRepository.GetAnnualLeaveRequestByEmployeedId(EmployeeId);
+        }
+        async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
+        {
+
+
+            AnnualLeaveRequest data = await DialogService.OpenAsync<AddRequestPage>("Add Annual Leave",
+            new Dictionary<string, object> { { "Start", args.Start.GetStartOfDay() }, { "End", args.Start.GetEndOfDay() }, {"EmployeeId", EmployeeId }, { "Username", Username } });
+            if (data != null)
+            {
+                await LoadRequests();
+            }
+        }
+
+        async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AnnualLeaveRequest> args)
+        {
+
+
+            await DialogService.OpenAsync<EditRequestPage>("Edit Annual Leave", new Dictionary<string, object> { { "Appointment", args.Data } });
+
+            await LoadRequests();
+        }
+
+        void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AnnualLeaveRequest> args)
+        {
+            // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+            switch (args.Data.Status)
+            {
+                case AnnualLeaveRequestStatus.Declined:
+                    args.Attributes["style"] = "background: red";
+                    break;
+                case AnnualLeaveRequestStatus.Pending:
+                    args.Attributes["style"] = "background: orange";
+                    break;
+                case AnnualLeaveRequestStatus.Approved:
+                    args.Attributes["style"] = "background: green";
+                    break;
+
+
+            }
+
+        }
+    }

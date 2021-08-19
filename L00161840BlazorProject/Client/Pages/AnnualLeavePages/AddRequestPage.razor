@@ -1,0 +1,121 @@
+﻿@inject DialogService DialogService
+@inject NotificationService NotifactionService 
+@inject IAnnualLeaveEntitlementRepository entitlementRepository
+@inject IAnnualLeaveRequestRepository requestRepository
+@inject  IAnnualLeaveTakenRepository takenRepository
+
+<RadzenTemplateForm TItem="AnnualLeaveRequest" Data="@model" Submit=@OnSubmit>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Start" />
+        </div>
+        <div class="col">
+            <RadzenDatePicker @bind-Value="@model.StartDate" Name="Start" ShowTime="false" DateFormat="dd/MM/yyyy" />
+            <RadzenRequiredValidator Text="Start is required" Component="Start" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="End" />
+        </div>
+        <div class="col">
+            <RadzenDatePicker Name="End" @bind-Value="@model.EndDate" ShowTime="false" DateFormat="dd/MM/yyyy" />
+            <RadzenRequiredValidator Component="End" Text="End is required" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+@code {
+    [Parameter]
+    public int EmployeeId { get; set; }
+    [Parameter]
+    public string Username { get; set; }
+    [Parameter]
+    public DateTime Start { get; set; }
+
+    [Parameter]
+    public DateTime End { get; set; }
+
+    AnnualLeaveRequest model = new AnnualLeaveRequest();
+
+    protected override void OnParametersSet()
+    {
+        Start = Start.GetStartOfDay();
+        End = End.GetEndOfDay();
+        model.StartDate = Start;
+        model.EndDate = End;
+    }
+
+    async Task OnSubmit(AnnualLeaveRequest model)
+    {
+        model.StartDate = model.StartDate.GetStartOfDay();
+        model.EndDate = model.EndDate.GetEndOfDay();
+        try
+        {
+            await AddRequest(EmployeeId, model.StartDate, model.EndDate);
+        }
+        catch (Exception ex)
+        {
+            NotifactionService.Notify(NotificationSeverity.Warning, "Cannot process leave", ex.Message);
+        }
+        DialogService.Close(model);
+    }
+    public async Task AddRequest(int employeeId, DateTime startDate, DateTime endDate )
+    {
+        var leaveDays = AnnualLeaveHelper.GetLeaveDays(startDate, endDate);
+
+        var previousLeave = await requestRepository.GetAnnualLeaveRequestByEmployeedId(employeeId);
+        List<DateRangeDTO> dateRangeDTOs = new List<DateRangeDTO>();
+        if (previousLeave != null)
+        {
+            dateRangeDTOs = previousLeave.Select(x => new DateRangeDTO(x.StartDate, x.EndDate)).ToList();
+            bool hasOverlaps = AnnualLeaveHelper.CheckOverlaps(startDate, endDate, dateRangeDTOs);
+            if (hasOverlaps)
+                throw  new ApplicationException("Overlaps with another leave request.");
+        }
+
+        foreach (var year in leaveDays)
+        {
+            //Get entitlement of that year
+            var entitlement = await AnnualLeaveHelper.GetandCreateEntitlementYear(employeeId, year.TaxYear, entitlementRepository);
+            year.Available = entitlement.Remaining;
+            year.EntitlementId = entitlement.Id;
+            year.Entitlement = entitlement.Entitlment;
+            if (year.Remaining < 0)
+                throw new ApplicationException("Not enough days available.");
+        }
+        model.DaysTaken = leaveDays.Sum(x => x.Requested);
+        model.EmployeeId = employeeId;
+        model.RequestedTime = DateTime.Now;
+        model.RequestedBy = Username;
+        model.Status = AnnualLeaveRequestStatus.Pending;
+        var requestId = await requestRepository.CreateAnnualLeaveRequest(model);
+        foreach (var year in leaveDays)
+        {
+            AnnualLeaveTaken annualLeaveTaken = new AnnualLeaveTaken()
+            {
+                AnnualLeaveRequestId = requestId,
+                DaysTaken = year.Requested,
+                AnnualLeaveEntitlementId = year.EntitlementId,
+            };
+            var leaveTaken = await takenRepository.CreateAnnualLeaveTaken(annualLeaveTaken);
+            AnnualLeaveEntitlement annualLeaveEntitlement = new AnnualLeaveEntitlement()
+            {
+                EmployeeId = employeeId,
+                Entitlment = year.Entitlement,
+                Id = year.EntitlementId,
+                TaxYear = year.TaxYear,
+                Taken = (year.Entitlement - year.Available) + year.Requested
+            };
+
+            await entitlementRepository.UpdateAnnualLeaveEntitlement(annualLeaveEntitlement);
+        }
+
+
+    }
+}

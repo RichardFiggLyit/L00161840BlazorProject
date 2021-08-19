@@ -37,23 +37,36 @@ namespace L00161840BlazorProject.Server.Controllers
         [HttpPost("Create")]
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+            var user = new IdentityUser { UserName = model.UserName.Replace(" ","_"), Email = model.Email};
+            
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
+                if (model.IsAdmin)
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+                if (model.EmployeeId != null && (int)model.EmployeeId > 0)
+                    await _userManager.AddClaimAsync(user, new Claim("Employee",model.EmployeeId?.ToString()));
                 return await BuildToken(model);
             }
             else
             {
                 return BadRequest("Username or password invalid");
             }
+
         }
 
         [HttpPost("Login")]
         public async Task<ActionResult<UserToken>> Login([FromBody] UserInfo userInfo)
         {
-            var result = await _signInManager.PasswordSignInAsync(userInfo.Email,
+            var identityUser = await _userManager.FindByEmailAsync(userInfo.Email);
+            //string resetToken = await _userManager.GeneratePasswordResetTokenAsync(identityUser);
+            //IdentityResult passwordChangeResult = await _userManager.ResetPasswordAsync(identityUser, resetToken, "Ab123456!");
+            if (identityUser == null)
+                return BadRequest("Invalid login attempt");
+
+            var result = await _signInManager.PasswordSignInAsync(identityUser.UserName,
                 userInfo.Password, isPersistent: false, lockoutOnFailure: false);
+
 
             if (result.Succeeded)
             {
@@ -63,6 +76,7 @@ namespace L00161840BlazorProject.Server.Controllers
             {
                 return BadRequest("Invalid login attempt");
             }
+            
         }
 
         [HttpGet("RenewToken")]
@@ -79,14 +93,14 @@ namespace L00161840BlazorProject.Server.Controllers
 
         private async Task<UserToken> BuildToken(UserInfo userinfo)
         {
+            var identityUser = await _userManager.FindByEmailAsync(userinfo.Email);
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name, userinfo.Email),
+                new Claim(ClaimTypes.Name, identityUser.UserName),
                 new Claim(ClaimTypes.Email, userinfo.Email),
-                new Claim("myvalue", "whatever I want")
             };
 
-            var identityUser = await _userManager.FindByEmailAsync(userinfo.Email);
+            
             var claimsDB = await _userManager.GetClaimsAsync(identityUser);
 
             claims.AddRange(claimsDB);

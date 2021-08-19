@@ -43,10 +43,10 @@
                         @record.TaxPeriod
                     </td>
                     <td>
-                        @record.TotalGross.ToString(NF)
+                        @record.TotalGross.ToEuro()
                     </td>
                     <td>
-                        @record.TotalNet.ToString(NF)
+                        @record.TotalNet.ToEuro()
                     </td>
                 </tr>
                 }
@@ -56,7 +56,6 @@
 </GenericList>
 @code {
     List<PayrollOverviewDTO> PayrollOverviews;
-    private readonly string NF = "#,###,###,##0.00";
     protected override async Task OnInitializedAsync()
     {
         PayrollOverviews = await companyRepository.GetPayrollOverivew();

@@ -3,6 +3,7 @@
 @inject IAccountsRepository accountsRepository
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
+@inject NotificationService NotifactionService
 
 @using L00161840BlazorProject.Client.Auth
 
@@ -34,10 +35,24 @@
 @code {
     private UserInfo userInfo = new UserInfo();
 
+
     private async Task CreateUser()
     {
-        var userToken = await accountsRepository.Login(userInfo);
-        await loginService.Login(userToken);
-        navigationManager.NavigateTo("");
+        try
+        {
+            var userToken = await accountsRepository.Login(userInfo);
+            await loginService.Login(userToken);
+            NotificationMessage notificationMessage = new NotificationMessage() { Detail = "Succesful login", Severity = NotificationSeverity.Success, Duration = 4000, Summary = "Welcome!" };
+            NotifactionService.Notify(notificationMessage);
+            navigationManager.NavigateTo("");
+
+        }
+        catch (Exception ex)
+        {
+            NotificationMessage notificationMessage = new NotificationMessage() { Detail = ex.Message, Severity = NotificationSeverity.Error, Duration = 4000, Summary = "Error" };
+            NotifactionService.Notify(notificationMessage);
+
+        }
+
     }
 }

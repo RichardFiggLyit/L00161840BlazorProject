@@ -1,0 +1,134 @@
+﻿@page "/annualLeave"
+@inject IAnnualLeaveRequestRepository requestRepository
+@inject IAnnualLeaveEntitlementRepository entitlementRepository
+@inject IAnnualLeaveTakenRepository takenRepository
+@inject DialogService DialogService
+@using L00161840BlazorProject.Client.Pages.AnnualLeavePages
+@attribute [Authorize]
+<RadzenDialog />
+<h3>Annual Leave View</h3>
+<RadzenScheduler @ref=@scheduler Style="width: 900px; height: 800px" TItem="AnnualLeaveEmployerDTO" Data=@annualLeaveRequests StartProperty="StartDate" EndProperty="EndDate"
+                 TextProperty="StatusDescription" SelectedIndex="0"
+                  AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
+    <RadzenMonthView />
+</RadzenScheduler>
+<h3>Pending Requests</h3>
+<RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@pendingRequests" TItem="AnnualLeaveEmployerDTO">
+    <Columns>
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Filterable="false" Sortable="false">
+            <Template Context="data">
+                <button class="btn btn-success" @onclick="() => SetStatus(data, true)">Approve</button>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Filterable="false" Sortable="false">
+            <Template Context="data">
+                <button class="btn btn-danger" @onclick="() => SetStatus(data, false)">Decline</button>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Property="EmployeeName" Title="Employee Name" />
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Property="PPSN" Title="PPSN" />
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Property="PayrollReference" Title="Payroll Reference" />
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Property="StartDate" Title="Start">
+            <Template Context="data">
+                @data.StartDate.ToStandardString()
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Property="EndDate" Title="End">
+            <Template Context="data">
+                @data.EndDate.ToStandardString()
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Property="DaysTaken" Title="Days Taken" />
+
+
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    List<AnnualLeaveEmployerDTO> annualLeaveRequests = new List<AnnualLeaveEmployerDTO>();
+    List<AnnualLeaveEmployerDTO> pendingRequests = new List<AnnualLeaveEmployerDTO>();
+    RadzenScheduler<AnnualLeaveEmployerDTO> scheduler;
+    string Username;
+    protected async override Task OnInitializedAsync()
+    {
+
+        var authState = await AuthenticationState;
+        Username = authState.User.Identity.Name;
+        await LoadData();
+
+    }
+    private async Task LoadData()
+    {
+        var data = await requestRepository.GetAll();
+        annualLeaveRequests = data.Select(x => new AnnualLeaveEmployerDTO
+        {
+            DaysTaken = x.DaysTaken,
+            EndDate = x.EndDate,
+            StartDate = x.StartDate,
+            EmployeeEmail = x.Employee.Email,
+            EmployeeId = x.EmployeeId,
+            EmployeeName = x.Employee.FullName,
+            Id = x.Id,
+            PayrollReference = x.Employee.PayrollReference,
+            PPSN = x.Employee.PPSN,
+            RequestedBy = x.RequestedBy,
+            RequestedTime = x.RequestedTime,
+            Status = x.Status,
+            StatusSetBy = x.StatusSetBy,
+            StatusSetTime = x.StatusSetTime
+        }).ToList();
+
+        pendingRequests = annualLeaveRequests.Where(x => x.Status == AnnualLeaveRequestStatus.Pending).ToList();
+    }
+    private async Task SetStatus(AnnualLeaveEmployerDTO data, bool isApproved)
+    {
+        var request = await requestRepository.GetAnnualLeaveRequestById(data.Id);
+        request.Status = isApproved ? AnnualLeaveRequestStatus.Approved : AnnualLeaveRequestStatus.Declined;
+        request.StatusSetBy = Username;
+        request.StatusSetTime = DateTime.Now;
+        await requestRepository.UpdateAnnualLeaveRequest(request);
+        //Release the days taken back to available entitlement
+        if (!isApproved)
+        {
+            var taken = await takenRepository.GetAnnualLeaveTakenByRequestId(request.Id);
+            foreach (var takenYear in taken)
+            {
+                var entitlement = await entitlementRepository.GetAnnualLeaveEntitlementById(takenYear.AnnualLeaveEntitlementId);
+                entitlement.Taken = entitlement.Taken - takenYear.DaysTaken;
+                await entitlementRepository.UpdateAnnualLeaveEntitlement(entitlement);
+                await takenRepository.DeleteAnnualLeaveTaken(takenYear.Id);
+            }
+        }
+        await LoadData();
+    }
+
+    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AnnualLeaveEmployerDTO> args)
+    {
+
+
+        await DialogService.OpenAsync<EditRequestPage>("Edit Annual Leave", new Dictionary<string, object> { { "Appointment", args.Data } });
+
+        await LoadData();
+    }
+
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AnnualLeaveEmployerDTO> args)
+    {
+        // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+        switch (args.Data.Status)
+        {
+            case AnnualLeaveRequestStatus.Declined:
+                args.Attributes["style"] = "background: red";
+                break;
+            case AnnualLeaveRequestStatus.Pending:
+                args.Attributes["style"] = "background: orange";
+                break;
+            case AnnualLeaveRequestStatus.Approved:
+                args.Attributes["style"] = "background: green";
+                break;
+
+
+        }
+
+    }
+}

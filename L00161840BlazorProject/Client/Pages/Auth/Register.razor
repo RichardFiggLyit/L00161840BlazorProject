@@ -15,7 +15,13 @@
 
     <EditForm Model="userInfo" OnValidSubmit="CreateUser">
         <DataAnnotationsValidator />
-        <text>@invite.InviteReference @invite.Id</text>
+        <div class="form-group">
+            <label>Username:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@userInfo.UserName" />
+                <ValidationMessage For="@(() => userInfo.UserName)" />
+            </div>
+        </div>
         <div class="form-group">
             <label>Email:</label>
             <div>
@@ -36,41 +42,47 @@
 
     </EditForm>
 }
-else if (!IsValidating)
-{
-    <h3>Invalid Invite Id</h3>
-}
 else
 {
-    <h3>Validating</h3>
+    <h3>@pageMessage</h3>
 }
 
 @code {
     private UserInfo userInfo = new UserInfo();
     private Invite invite = null;
-    private bool IsValidating = true;
+    private string pageMessage = "Validating...";
     protected override async Task OnInitializedAsync()
     {
-        var dict = navigationManager.GetQueryStrings(navigationManager.Uri);
-        if (dict != null)
+        await loginService.Logout();
+        try
         {
-            var inviteReference = dict.Where(x => x.Key == "InviteReference")?.FirstOrDefault().Value;
+            var dict = navigationManager.GetQueryStrings(navigationManager.Uri);
+            if (dict != null)
+            {
+                var inviteReference = dict.Where(x => x.Key == "InviteReference")?.FirstOrDefault().Value;
 
                 if (inviteReference != null)
                 {
                     invite = await inviteService.GetInviteFromReference(inviteReference);
-
+                    userInfo.Email = invite.Email;
+                    userInfo.IsAdmin = invite.IsAdmin;
+                    userInfo.EmployeeId = invite.EmployeeId;
                 }
-            
-
-
+            }
         }
-        IsValidating = false;
+        catch
+        {
+            pageMessage = "Invite Reference is invalid! Please contact your administrator";
+        }
+
+
     }
+
+
     private async Task CreateUser()
     {
+
         var userToken = await accountsRepository.Register(userInfo);
-        await loginService.Login(userToken);
-        navigationManager.NavigateTo("");
+        navigationManager.NavigateTo("login");
     }
 }

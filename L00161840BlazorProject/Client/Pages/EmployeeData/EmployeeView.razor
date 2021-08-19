@@ -1,0 +1,127 @@
+﻿@page "/employee/view/{EmployeeId:int}"
+
+@inject IEmployeeRepository employeeRepository 
+@inject IEmailService emailService
+@inject ICompanyRepository companyRepository
+@inject NotificationService notificationService
+@inject NavigationManager navigationManager
+
+@if (Employee == null)
+            {
+    <Loading/>
+            }
+ else
+	{
+
+<h3>Employee Overview</h3>
+<br />
+
+<div class="row">
+    <div >
+        <RadzenTabs   RenderMode="TabRenderMode.Client">
+            <Tabs>
+                <RadzenTabsItem Text="Employee Data">
+                    <EmployeeForm Employee="Employee" DisableInput="!isAdmin" OnValidSubmit="UpdateEmployee"></EmployeeForm>
+                </RadzenTabsItem>
+                    <RadzenTabsItem Text="Payslips">
+                        <RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@payslips" TItem="PayslipOverviewDTO">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Filterable="false" Sortable="false">
+                                    <Template Context="data">
+                                        <a href="/payroll/payslip/@data.PayDataId" class="btn btn-success">View</a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="PayGroupName" Title="Pay Group" />
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="PayPeriod" Title="Pay Period">
+                                    <Template Context="data">
+                                        @data.PayPeriod.ToString()
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="PayDate" Title="Pay Date">
+                                    <Template Context="data">
+                                        @data.PayDate.ToString("dd/MM/yyyy")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="TaxYear" Title="Tax Year" />
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="TaxPeriod" Title="Tax Period" />
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="TotalGross" Title="Total Gross">
+                                    <Template Context="data">
+                                        @data.TotalGross.ToEuro()
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn TItem="PayslipOverviewDTO" Property="TotalNet" Title="Total Net">
+                                    <Template Context="data">
+                                        @data.TotalNet.ToEuro()
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Annual Leave">
+                        <AnnualLeaveRequestForm EmployeeId="EmployeeId" Username="@Username"></AnnualLeaveRequestForm>
+                    </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </div>
+</div>
+
+
+
+}
+@code {
+    [Parameter] public int EmployeeId { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+    public string Username;
+
+    public Employee Employee;
+    public Employee EmployeeDB;
+    private bool isAdmin = false;
+    private List<PayslipOverviewDTO> payslips;
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationState;
+        Username = authState.User.Identity.Name;
+        isAdmin = authState.User.IsAdmin();
+        int userEmployeeId = authState.User.EmployeeId();
+
+        if (!isAdmin && userEmployeeId != EmployeeId)
+        {
+
+            notificationService.Notify(NotificationSeverity.Warning, "Warning", "You are not authorised to view this employee");
+            navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            try
+            {
+                Employee = await employeeRepository.GetEmployeeById(EmployeeId);
+                EmployeeDB = Employee.ShallowCopy();
+                payslips = await employeeRepository.GetPayslipOverview(EmployeeId);
+            }
+            catch
+            {
+                Employee = null;
+                notificationService.Notify(NotificationSeverity.Error, "Error", "Cannot load employee. Check access rights or contact System Administrator");
+                navigationManager.NavigateTo("/");
+            }
+        }
+
+    }
+    private async Task UpdateEmployee()
+    {
+        if (!Employee.Equals(EmployeeDB))
+        {
+            await employeeRepository.UpdateEmployee(Employee);
+            if (!isAdmin)
+            {
+                var company = await companyRepository.GetCompany();
+                await emailService.SendEmail("info@portal.com", company.AdminEmail, String.Format("Employee {0} has been updated!", Employee.Forename + " " + Employee.Surname), String.Format("<html><p>Hi,</p><br/><p>{0} has been updated. Please login to view the changes and update the payroll software.</p></html>", Employee.Forename + " " + Employee.Surname));
+
+            }
+            notificationService.Notify(NotificationSeverity.Success, "Success", "Record updated!");
+
+        }
+    }
+}

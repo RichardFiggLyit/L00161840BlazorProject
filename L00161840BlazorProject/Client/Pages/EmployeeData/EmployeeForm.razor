@@ -1,0 +1,113 @@
+﻿
+<EditForm Model="Employee" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Forename</label>
+        <div>
+            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Employee.Forename" />
+            <ValidationMessage For="@(() => Employee.Forename)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="name">Surname</label>
+        <div>
+            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Employee.Surname" />
+            <ValidationMessage For="@(() => Employee.Surname)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="name">Payroll Reference</label>
+        <div>
+            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Employee.PayrollReference" />
+            <ValidationMessage For="@(() => Employee.PayrollReference)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="name">PPSN</label>
+        <div>
+            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Employee.PPSN" />
+            <ValidationMessage For="@(() => Employee.PPSN)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Address 1</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Address1" />
+            <ValidationMessage For="@(() => Employee.Address1)" />
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label for="name">Address 2</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Address2" />
+            <ValidationMessage For="@(() => Employee.Address2)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Address 3</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Address3" />
+            <ValidationMessage For="@(() => Employee.Address3)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Address 4</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Address4" />
+            <ValidationMessage For="@(() => Employee.Address4)" />
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label for="name">Address 5</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Address5" />
+            <ValidationMessage For="@(() => Employee.Address5)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="name">Email</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Email" />
+            <ValidationMessage For="@(() => Employee.Email)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="name">Phone</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Employee.Phone" />
+            <ValidationMessage For="@(() => Employee.Phone)" />
+        </div>
+    </div>
+    <label for="name">Next of Kin Name</label>
+    <div>
+        <InputText class="form-control" @bind-Value="@Employee.NOKName" />
+        <ValidationMessage For="@(() => Employee.NOKName)" />
+    </div>
+    <label for="name">Next of Kin Phone</label>
+    <div>
+        <InputText  class="form-control" @bind-Value="@Employee.NOKPhone" />
+        <ValidationMessage For="@(() => Employee.NOKPhone)" />
+    </div>
+
+    <br /><br />
+    <button  type="submit" class="btn btn-primary">Submit</button>
+    <br /><br />
+
+</EditForm>
+
+@code {
+    [Parameter] public Employee Employee { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public bool DisableInput { get; set; }
+
+}

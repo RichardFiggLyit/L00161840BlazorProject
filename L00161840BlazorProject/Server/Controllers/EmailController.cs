@@ -1,4 +1,5 @@
 ﻿using L00161840BlazorProject.Server.Helpers;
+using L00161840BlazorProject.Shared.DTOs;
 using L00161840BlazorProject.Shared.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -32,7 +33,9 @@ namespace L00161840BlazorProject.Server.Controllers
                 Credentials = new NetworkCredential(emailConfiguration.Username, emailConfiguration.Password),
                 EnableSsl = true
             };
-            client.Send(mail.FromEmail, mail.ToEmail, mail.Subject, mail.Body);
+            var message = new MailMessage(mail.FromEmail,mail.ToEmail,mail.Subject,mail.Body);
+            message.IsBodyHtml = true;
+            client.Send(message);
 
 
         }
