@@ -11,5 +11,6 @@ namespace L00161840BlazorProject.Client.Repository
 
         Task<Invite> CreateInvite(Invite invite);
         Task<Invite> GetInviteFromReference(string inviteReference);
+        Task UpdateInvite(Invite invite);
     }
 }

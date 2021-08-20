@@ -54,7 +54,7 @@ namespace L00161840BlazorProject.Client
             services.AddScoped<TooltipService>();
             services.AddScoped<ContextMenuService>();
 
-            services.AddScoped<TokenRenewer>();
+            
             services.AddAuthorizationCore();
 
             services.AddScoped<JWTAuthenticationStateProvider>();
@@ -74,6 +74,7 @@ namespace L00161840BlazorProject.Client
                 provider=> provider.GetRequiredService<JWTAuthenticationStateProvider>());
             services.AddScoped<ILoginService, JWTAuthenticationStateProvider>(
                 provider => provider.GetRequiredService<JWTAuthenticationStateProvider>());
+            services.AddScoped<TokenRenewer>();
 
         }
     }

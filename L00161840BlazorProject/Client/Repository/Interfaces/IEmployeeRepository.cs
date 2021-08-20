@@ -11,7 +11,7 @@ namespace L00161840BlazorProject.Client.Repository
         Task<Employee> CreateOrUpdateEmployee(Employee employee);
         Task DeleteEmployee(int Id);
         Task<Employee> GetEmployeeById(int id);
-        Task<PaginatedResponse<List<EmployeeOverviewDTO>>> GetEmployees(PaginationDTO paginationDTO);
+        Task<List<EmployeeOverviewDTO>> GetEmployees();
         Task<List<Employee>> GetEmployeesBySurname(string name);
         Task<PayslipDTO> GetPayslip(int id);
         Task<List<PayslipOverviewDTO>> GetPayslipOverview(int id);

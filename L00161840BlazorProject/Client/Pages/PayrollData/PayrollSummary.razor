@@ -1,120 +1,127 @@
 ﻿@page "/payroll/view/{PayPeriodId:int}"
 @inject ICompanyRepository companyRepository
-
-
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin")]
 <h3>Payroll Summary<br /><br /></h3>
 @if (@PayrollSummaryDTO != null)
 {
-<h4>Group: @PayrollSummaryDTO.PayGroupName</h4>
-<h4>Frequency: @PayrollSummaryDTO.PayPeriod.ToString()</h4>
-<h4>Pay Date: @PayrollSummaryDTO.PayDate.ToString("dd/MM/yyyy")</h4>
-<h4>Tax Year: @PayrollSummaryDTO.TaxYear&nbsp;&nbsp;Tax Period: @PayrollSummaryDTO.TaxPeriod</h4>
+    <h4>Group: @PayrollSummaryDTO.PayGroupName</h4>
+    <h4>Frequency: @PayrollSummaryDTO.PayPeriod.ToString()</h4>
+    <h4>Pay Date: @PayrollSummaryDTO.PayDate.ToString("dd/MM/yyyy")</h4>
+    <h4 style="margin-bottom: 48px">Tax Year: @PayrollSummaryDTO.TaxYear&nbsp;&nbsp;Tax Period: @PayrollSummaryDTO.TaxPeriod</h4>
+    <div>
+        <RadzenDataGrid AllowColumnResize="true" ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@PayrollSummaryDTO.Rows" TItem="PayrollSummaryDTO.Row" Style="margin-bottom: 30px; width: calc(100vw - 310px); height: calc(100vh - 330px); " >
+            <Columns>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Filterable="false" Sortable="false" Frozen="true">
+                    <Template Context="data">
+                        <a href="/payroll/payslip/@data.PayDataId" class="btn btn-success">View Payslip</a>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="PayrollReference" Title="Payroll Reference" Frozen="true">
+                    <FooterTemplate>
+                        Count Employees: <b>@PayrollSummaryDTO.Rows.Count()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="EmployeeName" Title="Employee Name" Frozen="true" />
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="PPSN" Title="PPSN" />
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="Gross" Title="Gross">
+                    <Template Context="data">
+                        @data.Gross.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.Gross).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="BasicHours" Title="Basic Hours">
+                    <Template Context="data">
+                        @data.BasicHours.ToString("#,##0.00")
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.BasicHours).ToString("#,##0.00")</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="BasicRate" Title="Basic Rate">
+                    <Template Context="data">
+                        @data.BasicRate.ToEuro()
+                    </Template>
+                </RadzenDataGridColumn>
 
-<GenericList List="PayrollSummaryDTO.Rows">
-    <WholeListTemplate>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Payroll Reference</th>
-                    <th>Employee Name</th>
-                    <th>PPSN</th>
-                    <th>Gross</th>
-                    <th>Basic Hours</th>
-                    <th>Basic Rate</th>
-                    @foreach (var item in PayrollSummaryDTO.Payments)
-                    {
-                        <th>@item.Name</th>
-                    }
-                    <th>PAYE</th>
-                    <th>USC</th>
-                    <th>EE PRSI</th>
-                    <th>LPT</th>
-                    @foreach (var item in PayrollSummaryDTO.Deductions)
-                    {
-                        <th>@item.Name</th>
-                    }
-                    <th>Net</th>
-                    <th>ER PRSI</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var record in PayrollSummaryDTO.Rows)
+                @foreach (var item in PayrollSummaryDTO.Payments)
                 {
-                    <tr>
-                        <td>
-                            <a href="/payroll/payslip/@record.PayDataId" class="btn btn-success">View Payslip</a>
-                        </td>
-                        <td>
-                            @record.PayrollReference
-                        </td>
-                        <td>
-                            @record.EmployeeName
-                        </td>
-                        <td>
-                            @record.PPSN
-                        </td>
-                        <td>
-                            @record.Gross.ToEuro()
-                        </td>
-                        <td>
-                            @record.BasicHours.ToEuro()
-                        </td>
-                        <td>
-                            @record.BasicRate.ToEuro()
-                        </td>
-                        @foreach (var item in PayrollSummaryDTO.Payments)
-                        {
-
-                            <td>@((record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0).ToEuro())</td>
-                        }
-                        <td>@record.PAYE.ToEuro()</td>
-                        <td>@record.USC.ToEuro()</td>
-                        <td>@record.EEPRSI.ToEuro()</td>
-                        <td>@record.LPT.ToEuro()</td>
-                        @foreach (var item in PayrollSummaryDTO.Deductions)
-                        {
-                            <td>@((0.0-(record.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToEuro())</td>
-                        }
-                        <td>
-                            @record.Net.ToEuro()
-                        </td>
-                        <td>
-                            @record.ERPRSI.ToEuro()
-                        </td>
-                    </tr>
+                    <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Title="@item.Name">
+                        <Template Context="data">
+                            @((data.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0).ToEuro())
+                        </Template>
+                        <FooterTemplate>
+                            <b>@((PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToEuro())</b>
+                        </FooterTemplate>
+                    </RadzenDataGridColumn>
                 }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>Totals</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Gross).ToEuro()</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.BasicHours).ToEuro()</td>
-                    <td></td>
-                    @foreach (var item in PayrollSummaryDTO.Payments)
-                    {
-                        <td>@((PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToEuro())</td>
-                    }
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.PAYE).ToEuro()</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.USC).ToEuro()</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.EEPRSI).ToEuro()</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.LPT).ToEuro()</td>
-                    @foreach (var item in PayrollSummaryDTO.Deductions)
-                    {
-                        <td>@((0.0-(PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0))).ToEuro())</td>
-                    }
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.Net).ToEuro()</td>
-                    <td>@PayrollSummaryDTO.Rows.Sum(x => x.ERPRSI).ToEuro()</td>
-                </tr>
-            </tfoot>
-        </table>
-    </WholeListTemplate>
-</GenericList>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="PAYE" Title="PAYE">
+                    <Template Context="data">
+                        @data.PAYE.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.PAYE).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="USC" Title="USC">
+                    <Template Context="data">
+                        @data.USC.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.USC).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="EEPRSI" Title="EE PRSI">
+                    <Template Context="data">
+                        @data.EEPRSI.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.EEPRSI).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="LPT" Title="LPT">
+                    <Template Context="data">
+                        @data.LPT.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.LPT).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+
+                @foreach (var item in PayrollSummaryDTO.Deductions)
+                {
+                    <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Title="@item.Name">
+                        <Template Context="data">
+                            @((0.0-(data.PayslipItems.Where(x => x.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0)).ToEuro())
+                        </Template>
+                        <FooterTemplate>
+                            <b>@((0.0-(PayrollSummaryDTO.Rows.Sum(x=>x.PayslipItems.Where(y => y.PayItemId == item.Id).FirstOrDefault()?.Amount ?? 0.0))).ToEuro())</b>
+                        </FooterTemplate>
+                    </RadzenDataGridColumn>
+                }
+
+
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="Net" Title="Net">
+                    <Template Context="data">
+                        @data.Net.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.Net).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Property="ERPRSI" Title="ER PRSI">
+                    <Template Context="data">
+                        @data.ERPRSI.ToEuro()
+                    </Template>
+                    <FooterTemplate>
+                        <b>@PayrollSummaryDTO.Rows.Sum(x => x.ERPRSI).ToEuro()</b>
+                    </FooterTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
 }
 @code {
     [Parameter] public int PayPeriodId { get; set; }

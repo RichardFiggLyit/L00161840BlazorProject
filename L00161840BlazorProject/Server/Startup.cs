@@ -32,8 +32,7 @@ namespace L00161840BlazorProject.Server
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //services.AddControllers().AddJsonOptions(x =>
-            //  x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
+
             services.AddAutoMapper(typeof(Startup));
             services.AddRazorPages();
 
@@ -53,6 +52,7 @@ namespace L00161840BlazorProject.Server
                     Encoding.UTF8.GetBytes(Configuration["jwt:key"])),
                     ClockSkew = TimeSpan.Zero
                 });
+
             services.Configure<EmailConfiguration>(Configuration.GetSection("MailSettings"));
 
         }

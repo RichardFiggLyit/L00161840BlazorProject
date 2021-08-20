@@ -1,80 +1,81 @@
 ﻿
-<EditForm Model="Company" OnValidSubmit="OnValidSubmit">
+<EditForm Model="Company" OnValidSubmit="OnValidSubmit" >
     <DataAnnotationsValidator />
+    <div style="width:350px; margin-bottom:48px">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Name" />
+                <ValidationMessage For="@(() => Company.Name)" />
+            </div>
+        </div>
 
-    <div class="form-group">
-        <label for="name">Name</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Name" />
-            <ValidationMessage For="@(() => Company.Name)" />
+        <div class="form-group">
+            <label for="name">Tax Reference</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.TaxReference" />
+                <ValidationMessage For="@(() => Company.TaxReference)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Address 1</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address1" />
+                <ValidationMessage For="@(() => Company.Address1)" />
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="name">Address 2</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address2" />
+                <ValidationMessage For="@(() => Company.Address2)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Address 3</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address3" />
+                <ValidationMessage For="@(() => Company.Address3)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Address 4</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address4" />
+                <ValidationMessage For="@(() => Company.Address4)" />
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label for="name">Address 5</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address5" />
+                <ValidationMessage For="@(() => Company.Address5)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Administrator Email</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.AdminEmail" />
+                <ValidationMessage For="@(() => Company.AdminEmail)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="name">Phone</label>
+            <div>
+                <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Phone" />
+                <ValidationMessage For="@(() => Company.Phone)" />
+            </div>
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="name">Tax Reference</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.TaxReference" />
-            <ValidationMessage For="@(() => Company.TaxReference)" />
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="name">Address 1</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address1" />
-            <ValidationMessage For="@(() => Company.Address1)" />
-        </div>
-    </div>
-
-
-    <div class="form-group">
-        <label for="name">Address 2</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address2" />
-            <ValidationMessage For="@(() => Company.Address2)" />
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="name">Address 3</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address3" />
-            <ValidationMessage For="@(() => Company.Address3)" />
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="name">Address 4</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address4" />
-            <ValidationMessage For="@(() => Company.Address4)" />
-        </div>
-    </div>
-
-
-    <div class="form-group">
-        <label for="name">Address 5</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Address5" />
-            <ValidationMessage For="@(() => Company.Address5)" />
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="name">Administrator Email</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.AdminEmail" />
-            <ValidationMessage For="@(() => Company.AdminEmail)" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="name">Phone</label>
-        <div>
-            <InputText disabled="@DisableInput" class="form-control" @bind-Value="@Company.Phone" />
-            <ValidationMessage For="@(() => Company.Phone)" />
-        </div>
-    </div>
-    <br /><br />
 
 
 

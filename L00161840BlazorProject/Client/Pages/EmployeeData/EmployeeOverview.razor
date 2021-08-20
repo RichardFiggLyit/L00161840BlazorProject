@@ -3,83 +3,56 @@
 @inject IInviteRepository inviteRepository
 @inject IEmailService emailService
 @inject NavigationManager Navigator
+@attribute [Authorize(Roles = "Admin")]
 
-<Pagination CurrentPage="@paginationDTO.Page" SelectedPage="SelectedPage"
-            TotalAmountPages="totalAmountOfPages"></Pagination>
+
 <h3>Employee Overview</h3>
-<GenericList List="Employees">
-    <WholeListTemplate>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Payroll Reference</th>
-                    <th>PPSN</th>
-                    <th>Forename</th>
-                    <th>Surname</th>
-                    <th>Email</th>
-                    <th>Invite Status</th>
+<RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@Employees" TItem="EmployeeOverviewDTO">
+    <Columns>
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Filterable="false" Sortable="false">
+            <Template Context="data">
+                <a href="/employee/view/@data.Id" class="btn btn-success">Edit</a>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Property="PayrollReference" Title="Payroll Reference" />
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Property="PPSN" Title="PPSN" />
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Property="Forename" Title="Forename" />
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Property="Surname" Title="Surname" />
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Property="Email" Title="Email" />
 
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var employee in Employees)
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Property="InviteStatus" Title="Invite Status" Filterable="false" Sortable="true">
+            <Template Context="data">
+                @data.InviteStatus.ToString().Replace("_", " ")
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="EmployeeOverviewDTO" Filterable="false" Sortable="false">
+            <Template Context="data">
+                @if (data.InviteStatus == InviteStatus.Not_Invited)
                 {
-                    <tr>
-                        <td>
-                            <a href="/employee/view/@employee.Id" class="btn btn-success">Edit</a>
-                        </td>
-                        <td>
-                            @employee.PayrollReference
-                        </td>
-                        <td>
-                            @employee.PPSN
-                        </td>
-                        <td>
-                            @employee.Forename
-                        </td>
-                        <td>
-                            @employee.Surname
-                        </td>
-                        <td>
-                            @employee.Email
-                        </td>
-                        <td>
-                            @employee.InviteStatus.ToString().Replace("_", " ")
-                        </td>
-                        <td>
-                            @if (employee.InviteStatus == InviteStatus.Not_Invited)
-                            {
-                                <button class="btn btn-primary" @onclick="() => InviteEmployee(employee)">Invite</button>
-                            }
-                        </td>
-                    </tr>
+                    <button class="btn btn-primary" @onclick="() => InviteEmployee(data)">Invite</button>
                 }
-            </tbody>
-        </table>
-    </WholeListTemplate>
-</GenericList>
+            </Template>
+        </RadzenDataGridColumn>
+
+
+    </Columns>
+</RadzenDataGrid>
+
 
 @code {
-    PaginationDTO paginationDTO = new PaginationDTO();
-    int totalAmountOfPages;
+
     List<EmployeeOverviewDTO> Employees;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadEmployees();
     }
-    private async Task SelectedPage(int page)
-    {
-        paginationDTO.Page = page;
-        await LoadEmployees();
 
-    }
     private async Task LoadEmployees()
     {
-        var paginatedResponse = await employeeRepository.GetEmployees(paginationDTO);
-        Employees = paginatedResponse.Response;
-        totalAmountOfPages = paginatedResponse.TotalAmountPages;
+        Employees = await employeeRepository.GetEmployees();
+
     }
     private async Task InviteEmployee(EmployeeOverviewDTO employee)
     {

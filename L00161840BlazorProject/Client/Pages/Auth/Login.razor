@@ -3,7 +3,8 @@
 @inject IAccountsRepository accountsRepository
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
-@inject NotificationService NotifactionService
+@inject NotificationService NotificationService
+
 
 @using L00161840BlazorProject.Client.Auth
 
@@ -11,30 +12,29 @@
 
 <EditForm Model="userInfo" OnValidSubmit="CreateUser">
     <DataAnnotationsValidator />
-
-    <div class="form-group">
-        <label>Email:</label>
-        <div>
-            <InputText class="form-control" @bind-Value="@userInfo.Email" />
-            <ValidationMessage For="@(() => userInfo.Email)" />
+    <div style="width:350px">
+        <div class="form-group">
+            <label>Email:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@userInfo.Email" />
+                <ValidationMessage For="@(() => userInfo.Email)" />
+            </div>
         </div>
-    </div>
 
-    <div class="form-group">
-        <label>Password:</label>
-        <div>
-            <InputPassword class="form-control" @bind-Value="@userInfo.Password" />
-            <ValidationMessage For="@(() => userInfo.Password)" />
+        <div class="form-group">
+            <label>Password:</label>
+            <div>
+                <InputPassword class="form-control" @bind-Value="@userInfo.Password" />
+                <ValidationMessage For="@(() => userInfo.Password)" />
+            </div>
         </div>
+
+        <button type="submit" class="btn btn-primary">Login</button>
     </div>
-
-    <button type="submit" class="btn btn-primary">Login</button>
-
 </EditForm>
 
 @code {
     private UserInfo userInfo = new UserInfo();
-
 
     private async Task CreateUser()
     {
@@ -43,14 +43,23 @@
             var userToken = await accountsRepository.Login(userInfo);
             await loginService.Login(userToken);
             NotificationMessage notificationMessage = new NotificationMessage() { Detail = "Succesful login", Severity = NotificationSeverity.Success, Duration = 4000, Summary = "Welcome!" };
-            NotifactionService.Notify(notificationMessage);
-            navigationManager.NavigateTo("");
+            NotificationService.Notify(notificationMessage);
+            var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+
+
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("Redirect", out var param))
+            {
+                string redirect = param.First();
+                navigationManager.NavigateTo(System.Net.WebUtility.UrlDecode(redirect));
+            }
+            else
+                navigationManager.NavigateTo("");
 
         }
         catch (Exception ex)
         {
             NotificationMessage notificationMessage = new NotificationMessage() { Detail = ex.Message, Severity = NotificationSeverity.Error, Duration = 4000, Summary = "Error" };
-            NotifactionService.Notify(notificationMessage);
+            NotificationService.Notify(notificationMessage);
 
         }
 

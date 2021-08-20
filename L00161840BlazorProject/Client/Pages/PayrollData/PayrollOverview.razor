@@ -5,55 +5,41 @@
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin")]
 <h3>Payroll Overview</h3>
-<GenericList List="PayrollOverviews">
-    <WholeListTemplate>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Pay Group Name</th>
-                    <th>Pay Period</th>
-                    <th>Pay Date</th>
-                    <th>Tax Year</th>
-                    <th>Tax Period</th>
-                    <th>Total Gross</th>
-                    <th>Total Net</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var record in PayrollOverviews)
-                {
-                <tr>
-                    <td>
-                        <a href="/payroll/view/@record.PayPeriodId" class="btn btn-success">View</a>
-                    </td>
-                    <td>
-                       @record.PayGroupName
-                    </td>
-                    <td>
-                        @record.PayPeriod.ToString()
-                    </td>
-                    <td>
-                        @record.PayDate.ToString("dd/MM/yyyy")
-                    </td>
-                    <td>
-                        @record.TaxYear
-                    </td>
-                    <td>
-                        @record.TaxPeriod
-                    </td>
-                    <td>
-                        @record.TotalGross.ToEuro()
-                    </td>
-                    <td>
-                        @record.TotalNet.ToEuro()
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </WholeListTemplate>
-</GenericList>
+<RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@PayrollOverviews" TItem="PayrollOverviewDTO">
+    <Columns>
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Filterable="false" Sortable="false">
+            <Template Context="data">
+                <a href="/payroll/view/@data.PayPeriodId" class="btn btn-success">View</a>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="PayGroupName" Title="Pay Group" />
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="PayPeriod" Title="Pay Period">
+            <Template Context="data">
+                @data.PayPeriod.ToString()
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="PayDate" Title="Pay Date">
+            <Template Context="data">
+                @data.PayDate.ToString("dd/MM/yyyy")
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="TaxYear" Title="Tax Year" />
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="TaxPeriod" Title="Tax Period" />
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="TotalGross" Title="Total Gross">
+            <Template Context="data">
+                @data.TotalGross.ToEuro()
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="PayrollOverviewDTO" Property="TotalNet" Title="Total Net">
+            <Template Context="data">
+                @data.TotalNet.ToEuro()
+            </Template>
+        </RadzenDataGridColumn>
+
+    </Columns>
+</RadzenDataGrid>
+
 @code {
     List<PayrollOverviewDTO> PayrollOverviews;
     protected override async Task OnInitializedAsync()

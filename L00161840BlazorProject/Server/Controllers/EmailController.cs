@@ -16,6 +16,7 @@ namespace L00161840BlazorProject.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class EmailController : ControllerBase
     {
         private readonly EmailConfiguration emailConfiguration;
@@ -24,7 +25,6 @@ namespace L00161840BlazorProject.Server.Controllers
             emailConfiguration = options.Value;
         }
         [HttpPut]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public void Put(MailRequest mail)
         {
 

@@ -32,11 +32,9 @@ namespace L00161840BlazorProject.Server.Controllers
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
-        public async Task<ActionResult<List<EmployeeOverviewDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
+        public async Task<ActionResult<List<EmployeeOverviewDTO>>> Get()
         {
-            var queryable = context.Employees.Include(x => x.Invite).OrderBy(y => y.Surname).ThenBy(z => z.Forename).AsQueryable();
-            await HttpContext.InsertPaginationParametersInResponse(queryable, paginationDTO.RecordsPerPage);
-            return await queryable.Paginate(paginationDTO).Select(x => new EmployeeOverviewDTO()
+            var employees = await context.Employees.Include(x => x.Invite).OrderBy(y => y.Surname).ThenBy(z => z.Forename).Select(x => new EmployeeOverviewDTO()
             {
                 Forename = x.Forename,
                 Surname = x.Surname,
@@ -46,6 +44,8 @@ namespace L00161840BlazorProject.Server.Controllers
                 PPSN = x.PPSN,
                 Invite = x.Invite,
             }).ToListAsync();
+
+            return employees;
         }
 
         [HttpGet("{id}")]

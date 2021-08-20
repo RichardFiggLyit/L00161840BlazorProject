@@ -3,17 +3,17 @@
     <div class="form-group">
         <label>Name:</label>
         <div>
-            <InputText class="form-control" @bind-Value="@PayItem.Name" />
+            <InputText class="form-control" @bind-Value="@PayItem.Name" disabled="@IsRestricted" />
             <ValidationMessage For="@(() => PayItem.Name)" />
         </div>
     </div>
     <div class="form-group">
         <label>Item Type:</label>
-        <InputSelect @bind-Value="PayItem.PayItemType">
-            @foreach (PayItemType itemType in Enum.GetValues(typeof(PayItemType)))
-            { 
+        <InputSelect @bind-Value="PayItem.PayItemType" disabled="@IsRestricted">
+            @foreach (PayItemType itemType in PayItemTypes)
+            {
                 <option value="@itemType">@itemType</option>
-                }
+            }
         </InputSelect>
     </div>
     <div class="form-group">
@@ -30,4 +30,17 @@
 @code {
     [Parameter] public PayItem PayItem { get; set; }
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+    public bool IsRestricted = true;
+    List<PayItemType> PayItemTypes = new List<PayItemType>();
+    protected override void OnParametersSet()
+    {
+        IsRestricted = (PayItem != null && PayItem.Id!= 0 && (PayItem.PayItemType == PayItemType.General || PayItem.PayItemType == PayItemType.Employee));
+
+        if (IsRestricted)
+        {
+            PayItemTypes = Enum.GetValues(typeof(PayItemType)).Cast<PayItemType>().ToList();
+        }
+        else
+            PayItemTypes = new List<PayItemType>() { PayItemType.Payment, PayItemType.Deduction };
+    }
 }

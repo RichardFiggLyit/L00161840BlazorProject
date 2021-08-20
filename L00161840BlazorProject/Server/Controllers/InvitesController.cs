@@ -50,8 +50,38 @@ namespace L00161840BlazorProject.Server.Controllers
             return invite;
         }
 
+        [AllowAnonymous]
+        [HttpPut]
+        public async Task<ActionResult> Put(Invite invite)
+        {
+            var inviteDB = await context.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.InviteReference == invite.InviteReference);
+
+            if (inviteDB == null) { return NotFound(); }
+
+            context.Attach(invite).State = EntityState.Modified;
+
+            await context.SaveChangesAsync();
+            return NoContent();
+
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var inviteDB = await context.Companies.FirstOrDefaultAsync(x => x.Id == id);
+            if (inviteDB == null)
+            {
+                return NotFound();
+            }
+
+            context.Remove(inviteDB);
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+
         internal static readonly char[] chars =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
+"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
         public string CreateInviteReference()
         {
             int size = 64;
@@ -70,33 +100,6 @@ namespace L00161840BlazorProject.Server.Controllers
             }
 
             return result.ToString();
-        }
-        [HttpPut]
-        public async Task<ActionResult> Put(Invite invite)
-        {
-            var CompanyDB = await context.Invites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == invite.Id);
-
-            if (CompanyDB == null) { return NotFound(); }
-
-            context.Attach(invite).State = EntityState.Modified;
-
-            await context.SaveChangesAsync();
-            return NoContent();
-
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var Company = await context.Companies.FirstOrDefaultAsync(x => x.Id == id);
-            if (Company == null)
-            {
-                return NotFound();
-            }
-
-            context.Remove(Company);
-            await context.SaveChangesAsync();
-            return NoContent();
         }
     }
 }

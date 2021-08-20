@@ -1,28 +1,29 @@
 ﻿@page "/employee/view/{EmployeeId:int}"
 
-@inject IEmployeeRepository employeeRepository 
+@inject IEmployeeRepository employeeRepository
 @inject IEmailService emailService
 @inject ICompanyRepository companyRepository
 @inject NotificationService notificationService
 @inject NavigationManager navigationManager
+@attribute [Authorize]
 
 @if (Employee == null)
-            {
-    <Loading/>
-            }
- else
-	{
+{
+    <Loading />
+}
+else
+{
 
-<h3>Employee Overview</h3>
-<br />
+    <h3>Employee Overview: @Employee.FullName</h3>
+    <br />
 
-<div class="row">
-    <div >
-        <RadzenTabs   RenderMode="TabRenderMode.Client">
-            <Tabs>
-                <RadzenTabsItem Text="Employee Data">
-                    <EmployeeForm Employee="Employee" DisableInput="!isAdmin" OnValidSubmit="UpdateEmployee"></EmployeeForm>
-                </RadzenTabsItem>
+    <div class="row">
+        <div>
+            <RadzenTabs RenderMode="TabRenderMode.Client">
+                <Tabs>
+                    <RadzenTabsItem Text="Employee Data">
+                        <EmployeeForm Employee="Employee" DisableInput="!isAdmin" OnValidSubmit="UpdateEmployee"></EmployeeForm>
+                    </RadzenTabsItem>
                     <RadzenTabsItem Text="Payslips">
                         <RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@payslips" TItem="PayslipOverviewDTO">
                             <Columns>
@@ -60,12 +61,12 @@
                         </RadzenDataGrid>
                     </RadzenTabsItem>
                     <RadzenTabsItem Text="Annual Leave">
-                        <AnnualLeaveRequestForm EmployeeId="EmployeeId" Username="@Username"></AnnualLeaveRequestForm>
+                        <AnnualLeaveRequestForm Employee="Employee" Username="@Username"></AnnualLeaveRequestForm>
                     </RadzenTabsItem>
-            </Tabs>
-        </RadzenTabs>
+                </Tabs>
+            </RadzenTabs>
+        </div>
     </div>
-</div>
 
 
 
@@ -79,7 +80,8 @@
     public Employee EmployeeDB;
     private bool isAdmin = false;
     private List<PayslipOverviewDTO> payslips;
-    protected override async Task OnInitializedAsync()
+
+    private async Task LoadData()
     {
         var authState = await AuthenticationState;
         Username = authState.User.Identity.Name;
@@ -107,7 +109,12 @@
                 navigationManager.NavigateTo("/");
             }
         }
+        StateHasChanged();
+    }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadData();
     }
     private async Task UpdateEmployee()
     {

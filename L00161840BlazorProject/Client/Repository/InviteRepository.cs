@@ -37,6 +37,15 @@ namespace L00161840BlazorProject.Client.Repository
             return response.Response;
         }
 
+        public async Task UpdateInvite(Invite invite)
+        {
+            var response = await httpService.Put(url, invite);
+            if (!response.Success)
+            {
+                throw new ApplicationException(await response.GetBody());
+            }
+        }
+
 
     }
 }

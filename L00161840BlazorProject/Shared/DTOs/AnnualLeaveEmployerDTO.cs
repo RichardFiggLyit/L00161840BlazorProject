@@ -11,6 +11,7 @@ namespace L00161840BlazorProject.Shared.DTOs
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }
+        public string EmployeeForename { get; set; }
         public string EmployeeName { get; set; }
         public string EmployeeEmail { get; set; }
         public string PPSN { get; set; }

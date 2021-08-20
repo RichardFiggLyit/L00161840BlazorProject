@@ -1,5 +1,7 @@
 ﻿@page "/payroll/import"
 @using L00161840BlazorProject.Client.Pages.PayItemData
+@using System.Text.RegularExpressions
+@using System.IO
 @inject IPayGroupRepository payGroupRepository
 @inject IPayItemRepository payItemRepository
 @inject IPayPeriodRepository payPeriodRepository
@@ -10,6 +12,7 @@
 @attribute [Authorize(Roles = "Admin")]
 
 <ModalAddPayItem @ref="AddPayItemForm" onConfirm="PayItemFormConfirm" onCancel="PayItemFormCancel"></ModalAddPayItem>
+<ModalEditPayItem @ref="EditPayItemForm" onConfirm="EditPayItemFormConfirm" onCancel="EditPayItemFormCancel"></ModalEditPayItem>
 
 <h3>Payroll Import</h3>
 @if (PayGroups != null && PayGroups.Count == 0)
@@ -67,7 +70,9 @@
     <br />
     @if (payGroupId > 0 && ExistingPeriodId == 0)
     {
-        <InputFile accept=".csv" OnChange="@OnInputFileChange" class="btn btn-primary"  />
+        <div style="margin-bottom:30px">
+            <InputFile accept=".csv" OnChange="@OnInputFileChange" class="btn btn-primary" />
+        </div>
     }
     @if (ExistingPeriodId > 0)
     {
@@ -81,10 +86,14 @@
     <br />
     @if (headers != null)
     {
+
         <h2>Map data headers</h2>
         <br />
         <br />
-        <button @onclick="PayItemForm" class="btn btn-success">Add Pay Item</button>
+        <div class="form-inline">
+            <button style="margin-right:20px" @onclick="PayItemForm" class="btn btn-success">Add Pay Item</button>
+            <button @onclick="EditPayItemFormShow" class="btn btn-info">Edit Pay Item</button>
+        </div>
         <br />
         <br />
         <table class="table">
@@ -92,9 +101,11 @@
                 <tr>
                     <th>Header</th>
                     <th>Item</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
+
                 @for (int i = 0; i < headers.Count; i++)
                 {
                     var row = i;
@@ -103,7 +114,7 @@
                             <label for="name">@headers[row]</label>
                         </td>
                         <td>
-                            <select @bind="@PayItems[row].Id">
+                            <select @bind="@Items[row]">
                                 <option value=0 back>Select a Pay Item</option>
                                 @foreach (var item in PayItemsDB)
                                 {
@@ -111,12 +122,22 @@
                                 }
                             </select>
                         </td>
+                        <td>
+                            @if (Items[row] == 0)
+                            {
+                                <b>Item unmapped!</b>
+                            }
+                            @if (Items.Where(x=>x == Items[row]).Count() > 1)
+                            {
+                        <b>@PayItemsDB.Where(x=>x.Id == Items[row]).FirstOrDefault() has already been mapped!</b>
+                            }
+                        </td>
 
                     </tr>
                 }
             </tbody>
         </table>
-        <button class="btn btn-success" type="submit" @onclick="UploadData">Upload Data</button>
+        <button class="btn btn-success" type="submit" @onclick="UploadData" style="margin-bottom:48px">Upload Data</button>
     }
 
 }
@@ -130,9 +151,11 @@
     public List<int> TaxYears = new List<int>();
     public List<int> Periods = new List<int>() { 1 };
     public ModalAddPayItem AddPayItemForm { get; set; }
+    public ModalEditPayItem EditPayItemForm { get; set; }
     public int ExistingPeriodId { get; set; } = -1;
     List<PayGroup> PayGroups;
-    List<PayItem> PayItems = new List<PayItem>();
+    List<PayItem> PayItems;
+    List<int> Items = new List<int>();
     List<PayItem> PayItemsDB = new List<PayItem>();
     private Period frequency = Period.Weekly;
     private int _payGroupId;
@@ -183,6 +206,7 @@
         await GetPayItems();
 
     }
+
     private async Task DeletePayPeriod()
     {
         await payPeriodRepository.DeletePayPeriod(ExistingPeriodId);
@@ -190,20 +214,28 @@
     }
     private async Task UploadData()
     {
-        for (int i = 0; i < PayItems.Count; i++)
+        for (int i = 0; i < Items.Count; i++)
         {
             string header = headers[i];
-            var item = PayItems[i];
-            item.MappedReference = header;
-            if (item.Id != 0)
+            var itemId = Items[i];
+            if (header == "Car Allowance")
             {
-                var itemDB = PayItemsDB.Where(x => x.Id == item.Id).FirstOrDefault();
-                if (itemDB != null)
+
+            }
+            var item = PayItems.Where(x => x.Id == itemId).FirstOrDefault();
+            if (item != null)
+            {
+                item.MappedReference = header;
+                if (item.Id != 0)
                 {
-                    //Check if the item has changed
-                    if (!itemDB.Equals(item))
+                    var itemDB = PayItemsDB.Where(x => x.Id == item.Id).FirstOrDefault();
+                    if (itemDB != null)
                     {
-                        await payItemRepository.UpdatePayItem(item);
+                        //Check if the item has changed
+                        if (!itemDB.Equals(item))
+                        {
+                            await payItemRepository.UpdatePayItem(item);
+                        }
                     }
                 }
             }
@@ -268,6 +300,7 @@
         ExistingPeriodId = -1;
         navigationManager.NavigateTo($"/payroll/view/{periodId}");
     }
+
     private async Task CheckPeriodExists()
     {
         PayPeriod period = await payPeriodRepository.GetPayPeriod(payGroupId, taxYear, taxPeriod);
@@ -380,6 +413,10 @@
     {
         AddPayItemForm.Show();
     }
+    private void EditPayItemFormShow()
+    {
+        EditPayItemForm.Show();
+    }
     private async Task PayItemFormConfirm()
     {
         AddPayItemForm.Hide();
@@ -389,6 +426,16 @@
     private void PayItemFormCancel()
     {
         AddPayItemForm.Hide();
+    }
+    private async Task EditPayItemFormConfirm()
+    {
+        EditPayItemForm.Hide();
+        await GetPayItems();
+        SetUpMapping();
+    }
+    private void EditPayItemFormCancel()
+    {
+        EditPayItemForm.Hide();
     }
     private void UpdateTaxPeriods()
     {
@@ -426,9 +473,78 @@
     private async Task GetPayItems()
     {
         PayItemsDB = await payItemRepository.GetPayItems();
+        PayItems = new List<PayItem>();
+        foreach (var itemDB in PayItemsDB)
+        {
+            PayItems.Add(new PayItem(itemDB));
+        }
+
+    }
+    public async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        csvData = new List<List<string>>();
+        var singleFile = e.File;
+
+        Regex regex = new Regex(".+\\.csv", RegexOptions.Compiled);
+        if (!regex.IsMatch(singleFile.Name))
+        {
+            //show error invalidad format file
+        }
+        else
+        {
+            var stream = singleFile.OpenReadStream();
+            MemoryStream ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            stream.Close();
+            var outputFileString = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+            foreach (var item in outputFileString.Split(Environment.NewLine))
+            {
+                csvData.Add(SplitCSV(item.ToString()));
+            }
+            SetUpMapping();
+
+        }
+
     }
 
+    private List<string> SplitCSV(string input)
+    {
+        //Excludes commas within quotes
+        Regex csvSplit = new Regex("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
+        List<string> list = new List<string>();
+        string curr = null;
+        foreach (Match match in csvSplit.Matches(input))
+        {
+            curr = match.Value;
+            if (0 == curr.Length) list.Add("");
 
+            list.Add(curr.TrimStart(',').Replace("\r", ""));
+        }
+
+        return list;
+    }
+    private void SetUpMapping()
+    {
+        headers = csvData[0].ToList();
+
+        Items = new List<int>();
+        foreach (var header in headers)
+        {
+            var item = PayItemsDB.Where(x => x.MappedReference.ToLower() == header.ToLower()).FirstOrDefault();
+            if (item == null)
+            {
+                Items.Add(0);
+
+            }
+            else
+            {
+                Items.Add(item.Id);
+            }
+
+
+        }
+    }
 
 
 }

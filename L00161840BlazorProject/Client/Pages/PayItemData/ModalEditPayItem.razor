@@ -1,6 +1,5 @@
 ﻿@inject IPayItemRepository payItemRepository
 
-
 @if (DisplayConfirmation)
 {
 
@@ -13,15 +12,30 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Add Pay Item
+                        Edit Pay Item
                     </h5>
                     <button @onclick="onCancel" type="button" class="close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
                 <div class="modal-body">
-                    <PayItemForm OnValidSubmit="AddPayItem" PayItem="PayItem"></PayItemForm>
+                    @if (ItemId != 0)
+                    {
+                        <label>Item Type:</label>
+
+                        <select @bind="ItemId">
+                            @foreach (PayItem item in PayItems)
+                            {
+                                <option value="@item.Id">@item.ToString()</option>
+                            }
+                        </select>
+
+
+                        <PayItemForm OnValidSubmit="EditPayItem" PayItem="PayItem"></PayItemForm>
+                    }
                 </div>
+
                 <div class="modal-footer">
                     <button @onclick="onCancel" type="button" class="btn btn-secondary">Cancel</button>
                     <button @onclick="onConfirm" type="button" class="btn btn-primary">Finished</button>
@@ -34,24 +48,36 @@
 
 
 @code {
-    public PayItem PayItem { get; set; } = new PayItem();
+    private int _ItemId = 0;
+    public int ItemId
+    {
+        get
+        {
+            return _ItemId;
+        }
+        set
+        {
+            _ItemId = value;
+            PayItem = PayItems.Where(x => x.Id == _ItemId).First();
+        }
+    }
+    public PayItem PayItem { get; set; }
+    public List<PayItem> PayItems;
     private bool DisplayConfirmation = false;
     [Parameter] public EventCallback onConfirm { get; set; }
     [Parameter] public EventCallback onCancel { get; set; }
     public void Show() => DisplayConfirmation = true;
     public void Hide() => DisplayConfirmation = false;
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        PayItem.PayItemType = PayItemType.Payment;
+        PayItems = await payItemRepository.GetPayItems();
+        ItemId = PayItems.FirstOrDefault().Id;
     }
 
-    private async Task AddPayItem()
+    private async Task EditPayItem()
     {
-        await payItemRepository.CreatePayItem(PayItem);
+        await payItemRepository.UpdatePayItem(PayItem);
 
-        PayItem = new PayItem();
-        PayItem.PayItemType = PayItemType.Payment;
     }
 
 

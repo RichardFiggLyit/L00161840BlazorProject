@@ -19,6 +19,7 @@ namespace L00161840BlazorProject.Client.Auth
         public void Initiate()
         {
             timer = new Timer();
+            
             timer.Interval = 1000 * 60 * 4; // 4 minutes
             timer.Elapsed += Timer_Elapsed;
             timer.Start();

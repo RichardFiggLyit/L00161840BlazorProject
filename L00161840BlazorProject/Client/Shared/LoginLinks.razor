@@ -1,9 +1,20 @@
-﻿<AuthorizeView>
+﻿@inject NavigationManager navigation
+
+<AuthorizeView>
     <Authorized>
         <span>Hello, @context.User.Identity.Name!</span>
         <a href="Logout" class="nav-link btn btn-link">Log out</a>
     </Authorized>
     <NotAuthorized>
-        <a href="Login" class="nav-link btn btn-link">Login</a>
+        <a href="" @onclick="LoginClick" @onclick:preventDefault class="nav-link btn btn-link">Login</a>
     </NotAuthorized>
 </AuthorizeView>
+
+@code
+{
+    private void LoginClick()
+    {
+        var path = navigation.ToBaseRelativePath(navigation.Uri);
+        navigation.NavigateTo(navigation.LoginLink(path));
+    }
+}

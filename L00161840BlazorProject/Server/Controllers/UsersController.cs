@@ -32,17 +32,14 @@ namespace L00161840BlazorProject.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<UserDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
+        public async Task<ActionResult<List<UserDTO>>> Get()
         {
             
-            var queryable = context.Users.AsQueryable();
-            await HttpContext.InsertPaginationParametersInResponse(queryable, paginationDTO.RecordsPerPage);
-            return await queryable.Paginate(paginationDTO)
-                .Select(x => new UserDTO { Email = x.Email, UserId = x.Id, Name = x.UserName }).ToListAsync();
+            return await context.Users.Select(x => new UserDTO { Email = x.Email, UserId = x.Id, Name = x.UserName }).ToListAsync();
         }
 
         [HttpGet("roles")]
-        public async Task<ActionResult<List<RoleDTO>>> Get()
+        public async Task<ActionResult<List<RoleDTO>>> GetRoles()
         {
             return await context.Roles
                 .Select(x => new RoleDTO { RoleName = x.Name }).ToListAsync();

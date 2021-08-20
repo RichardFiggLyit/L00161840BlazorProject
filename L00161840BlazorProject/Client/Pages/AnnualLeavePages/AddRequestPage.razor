@@ -1,8 +1,10 @@
 ﻿@inject DialogService DialogService
-@inject NotificationService NotifactionService 
+@inject NotificationService NotificationService
 @inject IAnnualLeaveEntitlementRepository entitlementRepository
 @inject IAnnualLeaveRequestRepository requestRepository
-@inject  IAnnualLeaveTakenRepository takenRepository
+@inject IAnnualLeaveTakenRepository takenRepository
+@inject IEmailService emailService
+@inject ICompanyRepository companyRepository
 
 <RadzenTemplateForm TItem="AnnualLeaveRequest" Data="@model" Submit=@OnSubmit>
     <div class="row" style="margin-bottom: 16px">
@@ -31,10 +33,11 @@
     </div>
 </RadzenTemplateForm>
 @code {
-    [Parameter]
-    public int EmployeeId { get; set; }
+
     [Parameter]
     public string Username { get; set; }
+    [Parameter]
+    public Employee Employee { get; set; }
     [Parameter]
     public DateTime Start { get; set; }
 
@@ -57,15 +60,19 @@
         model.EndDate = model.EndDate.GetEndOfDay();
         try
         {
-            await AddRequest(EmployeeId, model.StartDate, model.EndDate);
+            await AddRequest(Employee.Id, model.StartDate, model.EndDate);
+            var company = await companyRepository.GetCompany();
+            string daysHolder = model.DaysTaken == 1 ? "day" : "days";
+            string emailMessage = emailMessage = $"<html><p>Hi,</p><p>{Employee.FullName} (PPSN: {Employee.PPSN}) has requested {model.DaysTaken.ToString()} {daysHolder} annual leave from {model.StartDate.ToStandardString()} to {model.EndDate.ToStandardString()}.</p><p>{company.Name} Payroll Portal</p></html>";
+            await emailService.SendEmail("info@portal.com",company.AdminEmail, "Annual Leave has been requested", emailMessage);
         }
         catch (Exception ex)
         {
-            NotifactionService.Notify(NotificationSeverity.Warning, "Cannot process leave", ex.Message);
+            NotificationService.Notify(NotificationSeverity.Warning, "Cannot process leave", ex.Message);
         }
         DialogService.Close(model);
     }
-    public async Task AddRequest(int employeeId, DateTime startDate, DateTime endDate )
+    public async Task AddRequest(int employeeId, DateTime startDate, DateTime endDate)
     {
         var leaveDays = AnnualLeaveHelper.GetLeaveDays(startDate, endDate);
 
@@ -73,10 +80,11 @@
         List<DateRangeDTO> dateRangeDTOs = new List<DateRangeDTO>();
         if (previousLeave != null)
         {
-            dateRangeDTOs = previousLeave.Select(x => new DateRangeDTO(x.StartDate, x.EndDate)).ToList();
+            //Get leave requests that have not been declined
+            dateRangeDTOs = previousLeave.Where(x => x.Status != AnnualLeaveRequestStatus.Declined).Select(x => new DateRangeDTO(x.StartDate, x.EndDate)).ToList();
             bool hasOverlaps = AnnualLeaveHelper.CheckOverlaps(startDate, endDate, dateRangeDTOs);
             if (hasOverlaps)
-                throw  new ApplicationException("Overlaps with another leave request.");
+                throw new ApplicationException("Overlaps with another leave request.");
         }
 
         foreach (var year in leaveDays)

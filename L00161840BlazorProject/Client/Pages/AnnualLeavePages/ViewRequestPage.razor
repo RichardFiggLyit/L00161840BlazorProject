@@ -1,0 +1,75 @@
+﻿<RadzenTemplateForm TItem="AnnualLeaveRequest" Data="@Appointment">
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Start" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.StartDate.ToStandardString()" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="End" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.EndDate.ToStandardString()" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Days taken" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.DaysTaken.ToString()" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Status" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.Status.ToString()" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Requested By" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.RequestedBy" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Requested Time" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.RequestedTime.ToString("HH:mm dd/MM/yyyy")" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Reviewd By" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@Appointment.StatusSetBy" />
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 16px">
+        <div class="col-md-3">
+            <RadzenLabel Text="Reviewed Time" />
+        </div>
+        <div class="col">
+            <RadzenLabel Text="@(Appointment.StatusSetTime == null ? "" : Appointment.StatusSetTime?.ToString("HH:mm dd/MM/yyyy"))" />
+        </div>
+    </div>
+
+</RadzenTemplateForm>
+
+@code {
+    [Parameter]
+    public AnnualLeaveRequest Appointment { get; set; }
+    AnnualLeaveRequest model = new AnnualLeaveRequest();
+
+
+}

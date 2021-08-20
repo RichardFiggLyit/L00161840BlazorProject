@@ -16,6 +16,7 @@ namespace L00161840BlazorProject.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CompaniesController : ControllerBase
     {
 
@@ -63,10 +64,12 @@ namespace L00161840BlazorProject.Server.Controllers
         public async Task<ActionResult<PayrollSummaryDTO>> GetPayrollSummary(int id)
         {
             
-            var payItems = await context.PayItems.ToListAsync();
+            //var payItems = await context.PayItems.ToListAsync();
             var payPeriod = await context.PayPeriods.FirstOrDefaultAsync(x => x.Id == id);
             var payGroup = await context.PayGroups.FirstOrDefaultAsync(x => x.Id == payPeriod.PayGroupId);
-            var payDatum =  await context.PayDatum.Where(x => x.PayPeriodId == id).Include(x=>x.Employee).Include(x=>x.PayslipItems).ToListAsync();
+            var payDatum =  await context.PayDatum.Where(x => x.PayPeriodId == id).Include(x=>x.Employee).Include(x=>x.PayslipItems).ThenInclude(x=>x.PayItem).ToListAsync();
+            var payItems = payDatum.Select(x => x.PayslipItems.Where(y => y.Amount != 0.0)).SelectMany(x=>x).Select(x=>x.PayItem).Distinct().ToList();
+            
             PayrollSummaryDTO payrollSummaryDTO = new PayrollSummaryDTO()
             {
                 PayDate = payPeriod.PayDate,
@@ -111,6 +114,7 @@ namespace L00161840BlazorProject.Server.Controllers
 
 
         [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Put(Company company)
         {
             context.Attach(company).State = EntityState.Modified;
@@ -120,6 +124,7 @@ namespace L00161840BlazorProject.Server.Controllers
         }
 
         [HttpPost]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<int>> Post(Company company)
         {
             context.Add(company);

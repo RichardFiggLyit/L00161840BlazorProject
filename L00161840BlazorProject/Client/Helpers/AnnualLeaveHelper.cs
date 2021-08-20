@@ -7,6 +7,7 @@ using L00161840BlazorProject.Client.Repository;
 using L00161840BlazorProject.Shared.Helpers;
 using System.Net;
 using L00161840BlazorProject.Shared.Entities;
+using System.Net.Mail;
 
 namespace L00161840BlazorProject.Client.Helpers
 {
@@ -16,7 +17,6 @@ namespace L00161840BlazorProject.Client.Helpers
 
         public static async Task<AnnualLeaveEntitlement> GetandCreateEntitlementYear(int employeeId, int taxYear, IAnnualLeaveEntitlementRepository repository)
         {
-
             var entitlement = await repository.GetAnnualLeaveEntitlementByEmployeedId(employeeId, taxYear);
             if (entitlement == null)
             {

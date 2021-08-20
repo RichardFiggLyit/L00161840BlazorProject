@@ -3,7 +3,7 @@
 @inject ICompanyRepository companyRepository
 @inject IPayGroupRepository payGroupRepository
 @inject NavigationManager navigationManager
-@inject IJSRuntime js
+@inject NotificationService NotificationService
 @attribute [Authorize]
 
 <h3>Company Data</h3>
@@ -16,42 +16,31 @@
 
     @if (PayGroups != null && !IsRestricted)
     {
-        <div class="form-inline">
-            <GenericList List="PayGroups">
-                <WholeListTemplate>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Pay Group</th>
-                                <th>Period</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var payGroup in PayGroups)
-                            {
-                                <tr>
-                                    <td>
-                                        <a href="/paygroups/edit/@payGroup.Id" class="btn btn-success">Edit</a>
-                                    </td>
-                                    <td>
-                                        @payGroup.Name
-                                    </td>
-                                    <td>
-                                        @payGroup.Period.ToString()
-                                    </td>
-                                    <td>
-
-                                        <button class="btn btn-danger" @onclick="@(() => DeletePayGroup(payGroup.Id))">Delete</button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </WholeListTemplate>
-            </GenericList>
-            <a href="/paygroups/add" class="btn btn-success">Add Paygroup</a>
-        </div>
+<div class="form-inline" Style="width:750px; margin-bottom: 48px">
+    <RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@PayGroups" TItem="PayGroup">
+        <Columns>
+            <RadzenDataGridColumn TItem="PayGroup" Filterable="false" Sortable="false" Width="70px">
+                <Template Context="data">
+                    <a href="/paygroups/edit/@data.Id" class="btn btn-success">Edit</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="PayGroup" Property="Name" Title="Pay Group"/>
+            <RadzenDataGridColumn TItem="PayGroup" Property="Period" Title="Frequency" Filterable="false" Width="90px">
+                <Template Context="data">
+                    @data.Period.ToString()
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="PayGroup" Filterable="false" Sortable="false" Width="70px">
+                <Template Context="data">
+                    <button class="btn btn-danger" @onclick="@(() => DeletePayGroup(data.Id))">Delete</button>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
+<div Style="margin-bottom: 48px">
+    <a href="/paygroups/add" class="btn btn-success">Add Pay Group</a>
+</div>
 
 
     }
@@ -60,18 +49,18 @@
 
 @code {
 
-    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+        [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
 
 
-    Company Company;
-    List<PayGroup> PayGroups;
+        Company Company;
+        List<PayGroup> PayGroups;
     private bool IsRestricted = true;
 
     protected async override Task OnInitializedAsync()
     {
 
         var authState = await AuthenticationState;
-        
+
         if (authState.User.IsAdmin())
             IsRestricted = false;
         Company = await companyRepository.GetCompany();
@@ -83,12 +72,29 @@
 
     private async Task Edit()
     {
-        await companyRepository.UpdateCompany(Company);
-        await js.AlertMessage("Company updated!");
+        try
+        {
+            await companyRepository.UpdateCompany(Company);
+        }
+        catch (Exception ex)
+
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", ex.Message);
+        }
+        NotificationService.Notify(NotificationSeverity.Success, "Company updated!");
     }
     private async Task DeletePayGroup(int Id)
     {
-        await payGroupRepository.DeletePayGroup(Id);
-        PayGroups = await payGroupRepository.GetPayGroups();
+        try
+        {
+            await payGroupRepository.DeletePayGroup(Id);
+            PayGroups = await payGroupRepository.GetPayGroups();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error,"Error", ex.Message);
+        }
+        NotificationService.Notify(NotificationSeverity.Success, "Pay group deleted!");
+
     }
 }

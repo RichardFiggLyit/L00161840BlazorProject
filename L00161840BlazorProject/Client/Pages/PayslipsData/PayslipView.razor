@@ -1,5 +1,6 @@
 ﻿@page "/payroll/payslip/{PayDataId:int}"
 @inject IEmployeeRepository employeeRepository
+@attribute [Authorize]
 @using System.Security.Claims
 @if (payslip != null)
 {
@@ -7,7 +8,8 @@
     {
         <h5><a href="/payroll/view/@payPeriodId"><strong>Go to Payroll summary...</strong></a></h5>
     }
-    <h5><a href="/employee/view/@employeeId"><strong>Go to Employee summary...</strong></a></h5><br />
+    <h5><a href="/employee/view/@employeeId"><strong>Go to Employee summary...</strong></a></h5>
+    <br />
     <style type="text/css">
 
         .outer-border {
@@ -238,7 +240,7 @@
     <h3>@pageMessage</h3>
 }
 @code {
-    [CascadingParameter] Alert Alert { get; set; }
+
     [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
     [Parameter] public int PayDataId { get; set; }
     private int payPeriodId = 0;

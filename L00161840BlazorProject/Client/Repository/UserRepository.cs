@@ -18,9 +18,9 @@ namespace L00161840BlazorProject.Client.Repository
             this.httpService = httpService;
         }
 
-        public async Task<PaginatedResponse<List<UserDTO>>> GetUsers(PaginationDTO paginationDTO)
+        public async Task<List<UserDTO>> GetUsers()
         {
-            return await httpService.GetHelper<List<UserDTO>>(url, paginationDTO);
+            return await httpService.GetHelper<List<UserDTO>>(url);
         }
 
         public async Task<List<RoleDTO>> GetRoles()

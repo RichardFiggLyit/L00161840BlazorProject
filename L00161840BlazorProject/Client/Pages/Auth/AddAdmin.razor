@@ -1,0 +1,38 @@
+﻿@inject IInviteRepository inviteRepository
+@inject IEmailService emailService
+@inject NavigationManager Navigator
+@inject DialogService DialogService
+@inject ICompanyRepository companyRepository
+
+<RadzenFieldset Text="Admin Registration">
+    <div class="row" style="margin-bottom: 48px">
+        <div class="col-md-4 align-right">
+            <RadzenLabel Text="Email Address" />
+        </div>
+        <div class="col">
+            <RadzenTextBox style="display: block; width: 250px" Name="Email" @bind-Value=@Email />
+            <RadzenRequiredValidator Component="Email" Text="Enter Email address" Style="position: absolute" />
+        </div>
+    </div>
+    <RadzenButton ButtonType="ButtonType.Submit" Text="Invite" Click="InviteAdmin"></RadzenButton>
+</RadzenFieldset>
+
+
+@code {
+    private string Email;
+    private async Task InviteAdmin()
+    {
+        Invite invite = new Invite()
+        {
+            Email = Email,
+            EmployeeId = null,
+            IsAccepted = false,
+            IsAdmin = true
+        };
+        var inviteDetails = await inviteRepository.CreateInvite(invite);
+        var url = Navigator.BaseUri + "register?InviteReference=" + inviteDetails.InviteReference;
+        var company = await companyRepository.GetCompany();
+        await emailService.SendEmail("info@portal.com", Email, "Invite to payroll portal", String.Format("<html><p>Hi,</p><br/><p>Please click below to complete your registration to our employer portal as an administrator</p><a href=\"{0}\">{0}</a><p>{1} Payroll Portal</p></html>", url, company.Name));
+        DialogService.Close();
+    }
+}

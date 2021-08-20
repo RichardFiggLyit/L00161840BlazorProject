@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,23 +9,18 @@ namespace L00161840BlazorProject.Client.Helpers
 {
     public static class NavigationManagerExtensions
     {
-        public static Dictionary<string, string> GetQueryStrings(
-            this NavigationManager navigationManager, string url)
+        public static string LoginLink(this NavigationManager navigation, string path)
         {
-            if (string.IsNullOrWhiteSpace(url) || !url.Contains("?") || url.Substring(url.Length - 1) == "?")
+            if (!string.IsNullOrWhiteSpace(path) && path != "/")
             {
-                return null;
+
+                var encodedRedirect = System.Net.WebUtility.UrlEncode(path);
+                var query = new Dictionary<string, string> { { "Redirect", encodedRedirect } };
+                return QueryHelpers.AddQueryString("Login", query);
+
             }
-
-            // https://domain.com?key1=value1&key2=value2
-
-            var queryStrings = url.Split(new string[] { "?" }, StringSplitOptions.None)[1];
-            Dictionary<string, string> dicQueryString =
-                                                    queryStrings.Split('&')
-                                                         .ToDictionary(c => c.Split('=')[0],
-                                                                       c => Uri.UnescapeDataString(c.Split('=')[1]));
-
-            return dicQueryString;
+            else
+                return "Login";
         }
     }
 }

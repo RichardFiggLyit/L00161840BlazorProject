@@ -66,6 +66,7 @@ namespace L00161840BlazorProject.Server.Controllers
 
         }
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {
             var AnnualLeaveTaken = await context.AnnualLeaveTaken.FirstOrDefaultAsync(x => x.Id == id);

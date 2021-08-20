@@ -15,7 +15,7 @@ namespace L00161840BlazorProject.Client.Repository
         Task<List<UserEmployeeDTO>> GetEmployees();
         Task<List<RoleDTO>> GetRoles();
         Task<UserNameDTO> GetUserName(string userId);
-        Task<PaginatedResponse<List<UserDTO>>> GetUsers(PaginationDTO paginationDTO);
+        Task<List<UserDTO>> GetUsers();
         Task RemoveRole(EditRoleDTO editRole);
         Task SetAdmin(SetAdminDTO setAdminDTO);
         Task SetEmployee(SetEmployeeDTO setEmployeeDTO);

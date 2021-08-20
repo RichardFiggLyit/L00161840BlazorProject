@@ -1,62 +1,46 @@
 ﻿@page "/users"
 @inject IUsersRepository usersRepository
-@*@attribute [Authorize(Roles = "Admin")]*@
+@inject DialogService DialogService
+@using L00161840BlazorProject.Client.Pages.Auth
+@attribute [Authorize(Roles = "Admin")]
+<RadzenDialog />
 
-<Pagination CurrentPage="@paginationDTO.Page" SelectedPage="SelectedPage"
-            TotalAmountPages="totalAmountOfPages"></Pagination>
 
-<h3>Index Users</h3>
+<h3>User overview</h3>
+<div style="margin-bottom:30px;width:800px">
+    <RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@Users" TItem="UserDTO">
+        <Columns>
+            <RadzenDataGridColumn TItem="UserDTO" Filterable="false" Sortable="false" Width="90px">
+                <Template Context="data">
+                    <a href="/users/edit/@data.UserId" class="btn btn-success">Edit</a>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="UserDTO" Property="Name" Title="Name" Width="200px" />
+            <RadzenDataGridColumn TItem="UserDTO" Property="Email" Title="Email" Width="250px" />
+        </Columns>
+    </RadzenDataGrid>
+</div>
+ 
 
-<GenericList List="Users">
-    <WholeListTemplate>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>User Name</th>
-                    <th>User Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Users)
+            <RadzenButton ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Text="Invite Admin" Click="AdminInvitePage"></RadzenButton>
+
+            @code {
+                List<UserDTO> Users;
+
+                protected override async Task OnInitializedAsync()
                 {
-                    <tr>
-                        <td>
-                            <a href="/users/edit/@user.UserId" class="btn btn-success">Edit</a>
-                        </td>
-                        <td>
-                            @user.Name
-                        </td>
-                        <td>
-                            @user.Email
-                        </td>
-                    </tr>
+                    await LoadUsers();
                 }
-            </tbody>
-        </table>
-    </WholeListTemplate>
-</GenericList>
 
-@code {
-    List<UserDTO> Users;
-    PaginationDTO paginationDTO = new PaginationDTO();
-    int totalAmountOfPages;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadUsers();
-    }
 
-    private async Task SelectedPage(int page)
-    {
-        paginationDTO.Page = page;
-        await LoadUsers();
-    }
+                private async Task LoadUsers()
+                {
+                    Users = await usersRepository.GetUsers();
 
-    private async Task LoadUsers()
-    {
-        var paginatedResponse = await usersRepository.GetUsers(paginationDTO);
-        Users = paginatedResponse.Response;
-        totalAmountOfPages = paginatedResponse.TotalAmountPages;
-    }
-}
+                }
+                private async Task AdminInvitePage()
+                {
+                    await DialogService.OpenAsync<AddAdmin>("Add an Admin");
+                }
+            }

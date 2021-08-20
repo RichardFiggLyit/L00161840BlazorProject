@@ -12,26 +12,26 @@
         </div>
 
     @code {
-        [Parameter] public int EmployeeId { get; set; }
+        [Parameter] public Employee Employee { get; set; }
         [Parameter] public string Username { get; set; }
         RadzenScheduler<AnnualLeaveRequest> scheduler;
 
         Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
         public List<AnnualLeaveRequest> AnnualLeaveRequests = new List<AnnualLeaveRequest>();
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnParametersSetAsync()
         {
             await LoadRequests();
         }
         public async Task LoadRequests()
         {
-            AnnualLeaveRequests = await requestRepository.GetAnnualLeaveRequestByEmployeedId(EmployeeId);
+            AnnualLeaveRequests = await requestRepository.GetAnnualLeaveRequestByEmployeedId(Employee.Id);
         }
         async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
         {
 
 
             AnnualLeaveRequest data = await DialogService.OpenAsync<AddRequestPage>("Add Annual Leave",
-            new Dictionary<string, object> { { "Start", args.Start.GetStartOfDay() }, { "End", args.Start.GetEndOfDay() }, {"EmployeeId", EmployeeId }, { "Username", Username } });
+            new Dictionary<string, object> { { "Start", args.Start.GetStartOfDay() }, { "End", args.Start.GetEndOfDay() }, {"Employee", Employee }, { "Username", Username } });
             if (data != null)
             {
                 await LoadRequests();
@@ -41,8 +41,7 @@
         async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AnnualLeaveRequest> args)
         {
 
-
-            await DialogService.OpenAsync<EditRequestPage>("Edit Annual Leave", new Dictionary<string, object> { { "Appointment", args.Data } });
+            await DialogService.OpenAsync<ViewRequestPage>("View Annual Leave", new Dictionary<string, object> { { "Appointment", args.Data } });
 
             await LoadRequests();
         }

@@ -3,17 +3,19 @@
 @inject IAnnualLeaveEntitlementRepository entitlementRepository
 @inject IAnnualLeaveTakenRepository takenRepository
 @inject DialogService DialogService
+@inject IEmailService emailService
+@inject ICompanyRepository companyRepository
 @using L00161840BlazorProject.Client.Pages.AnnualLeavePages
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 <RadzenDialog />
 <h3>Annual Leave View</h3>
 <RadzenScheduler @ref=@scheduler Style="width: 900px; height: 800px" TItem="AnnualLeaveEmployerDTO" Data=@annualLeaveRequests StartProperty="StartDate" EndProperty="EndDate"
                  TextProperty="StatusDescription" SelectedIndex="0"
-                  AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
+                 AppointmentSelect=@OnAppointmentSelect AppointmentRender=@OnAppointmentRender>
     <RadzenMonthView />
 </RadzenScheduler>
 <h3>Pending Requests</h3>
-<RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@pendingRequests" TItem="AnnualLeaveEmployerDTO">
+<RadzenDataGrid ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@pendingRequests" TItem="AnnualLeaveEmployerDTO" Style="margin-bottom: 48px">
     <Columns>
         <RadzenDataGridColumn TItem="AnnualLeaveEmployerDTO" Filterable="false" Sortable="false">
             <Template Context="data">
@@ -76,7 +78,8 @@
             RequestedTime = x.RequestedTime,
             Status = x.Status,
             StatusSetBy = x.StatusSetBy,
-            StatusSetTime = x.StatusSetTime
+            StatusSetTime = x.StatusSetTime,
+            EmployeeForename = x.Employee.Forename
         }).ToList();
 
         pendingRequests = annualLeaveRequests.Where(x => x.Status == AnnualLeaveRequestStatus.Pending).ToList();
@@ -87,8 +90,13 @@
         request.Status = isApproved ? AnnualLeaveRequestStatus.Approved : AnnualLeaveRequestStatus.Declined;
         request.StatusSetBy = Username;
         request.StatusSetTime = DateTime.Now;
+
         await requestRepository.UpdateAnnualLeaveRequest(request);
+
         //Release the days taken back to available entitlement
+        var company = await companyRepository.GetCompany();
+        string emailMessage;
+        string daysHolder = request.DaysTaken == 1 ? "day has" : "days have";
         if (!isApproved)
         {
             var taken = await takenRepository.GetAnnualLeaveTakenByRequestId(request.Id);
@@ -99,15 +107,35 @@
                 await entitlementRepository.UpdateAnnualLeaveEntitlement(entitlement);
                 await takenRepository.DeleteAnnualLeaveTaken(takenYear.Id);
             }
+            emailMessage = $"<html><p>Hi {data.EmployeeForename},</p><br/><p>Your request for leave from {request.StartDate.ToStandardString()} to {request.EndDate.ToStandardString()} has been declined. {request.DaysTaken.ToString()} {daysHolder} been released back to your annual leave accrual.<p>{company.Name} Payroll Portal</p></html>";
         }
+        else
+        {
+            emailMessage = $"<html><p>Hi {data.EmployeeForename},</p><br/><p>Your request for leave from {request.StartDate.ToStandardString()} to {request.EndDate.ToStandardString()} has been approved! {request.DaysTaken.ToString()} {daysHolder} been taken from your annual leave accrual.<p>{company.Name} Payroll Portal</p></html>";
+        }
+
+        await emailService.SendEmail("info@portal.com", data.EmployeeEmail, "Your annual leave request has been reviewed", emailMessage);
         await LoadData();
     }
 
     async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<AnnualLeaveEmployerDTO> args)
     {
 
+        AnnualLeaveRequest annualLeaveRequest = new AnnualLeaveRequest()
+        {
+            DaysTaken = args.Data.DaysTaken,
+            EmployeeId = args.Data.EmployeeId,
+            EndDate = args.Data.EndDate,
+            Id = args.Data.Id,
+            RequestedBy = args.Data.RequestedBy,
+            RequestedTime = args.Data.RequestedTime,
+            StartDate = args.Data.StartDate,
+            Status = args.Data.Status,
+            StatusSetBy = args.Data.StatusSetBy,
+            StatusSetTime = args.Data.StatusSetTime
+        };
 
-        await DialogService.OpenAsync<EditRequestPage>("Edit Annual Leave", new Dictionary<string, object> { { "Appointment", args.Data } });
+        await DialogService.OpenAsync<ViewRequestPage>($"{args.Data.EmployeeName}: Annual Leave", new Dictionary<string, object> { { "Appointment", annualLeaveRequest } });
 
         await LoadData();
     }

@@ -42,6 +42,7 @@ namespace L00161840BlazorProject.Server.Controllers
             return annualLeaveRequest;
         }
         [HttpGet("all")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<List<AnnualLeaveRequest>>> GetAll()
         {
             var annualLeaveTaken = await context.AnnualLeaveRequests.Include(x => x.Employee).OrderBy(x=>x.StartDate).ToListAsync();
