@@ -2,6 +2,7 @@
 @using L00161840BlazorProject.Client.Pages.PayItemData
 @using System.Text.RegularExpressions
 @using System.IO
+@inject NotificationService NotificationService
 @inject IPayGroupRepository payGroupRepository
 @inject IPayItemRepository payItemRepository
 @inject IPayPeriodRepository payPeriodRepository
@@ -214,14 +215,23 @@
     }
     private async Task UploadData()
     {
+        try
+        {
+            await RunDataUpload();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", ex.Message);
+        }
+    }
+    private async Task RunDataUpload()
+    {
         for (int i = 0; i < Items.Count; i++)
         {
             string header = headers[i];
             var itemId = Items[i];
-            if (header == "Car Allowance")
-            {
 
-            }
+
             var item = PayItems.Where(x => x.Id == itemId).FirstOrDefault();
             if (item != null)
             {
@@ -274,8 +284,10 @@
                 }
 
             }
-            if (!string.IsNullOrWhiteSpace(employee.PPSN) || !string.IsNullOrWhiteSpace(employee.PayrollReference))
+            if (!string.IsNullOrWhiteSpace(employee.PPSN) ||!string.IsNullOrWhiteSpace(employee.PayrollReference))
             {
+
+
                 employee = await employeeRepository.CreateOrUpdateEmployee(employee);
                 if (employee.Id != 0)
                 {
@@ -291,6 +303,7 @@
                         }
                     }
                 }
+
 
             }
 

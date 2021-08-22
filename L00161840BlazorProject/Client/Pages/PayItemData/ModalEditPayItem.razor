@@ -70,10 +70,14 @@
     public void Hide() => DisplayConfirmation = false;
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
         PayItems = await payItemRepository.GetPayItems();
         ItemId = PayItems.FirstOrDefault().Id;
     }
-
     private async Task EditPayItem()
     {
         await payItemRepository.UpdatePayItem(PayItem);

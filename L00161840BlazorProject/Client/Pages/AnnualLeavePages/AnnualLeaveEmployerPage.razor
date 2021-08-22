@@ -107,11 +107,15 @@
                 await entitlementRepository.UpdateAnnualLeaveEntitlement(entitlement);
                 await takenRepository.DeleteAnnualLeaveTaken(takenYear.Id);
             }
-            emailMessage = $"<html><p>Hi {data.EmployeeForename},</p><br/><p>Your request for leave from {request.StartDate.ToStandardString()} to {request.EndDate.ToStandardString()} has been declined. {request.DaysTaken.ToString()} {daysHolder} been released back to your annual leave accrual.<p>{company.Name} Payroll Portal</p></html>";
+            emailMessage = $"<html><p>Hi {data.EmployeeForename},</p><br/><p>Your request for leave from {request.StartDate.ToStandardString()} to " +
+                    $"{request.EndDate.ToStandardString()} has been declined. {request.DaysTaken.ToString()} {daysHolder} been released back to your annual leave accrual.<p>" +
+                    $"{company.Name} Payroll Portal</p></html>";
         }
         else
         {
-            emailMessage = $"<html><p>Hi {data.EmployeeForename},</p><br/><p>Your request for leave from {request.StartDate.ToStandardString()} to {request.EndDate.ToStandardString()} has been approved! {request.DaysTaken.ToString()} {daysHolder} been taken from your annual leave accrual.<p>{company.Name} Payroll Portal</p></html>";
+            emailMessage = $"<html><p>Hi {data.EmployeeForename},</p><br/><p>Your request for leave from {request.StartDate.ToStandardString()} to " +
+                    $"{request.EndDate.ToStandardString()} has been approved! {request.DaysTaken.ToString()} {daysHolder} been taken from your annual leave accrual.<p>" +
+                    $"{company.Name} Payroll Portal</p></html>";
         }
 
         await emailService.SendEmail("info@portal.com", data.EmployeeEmail, "Your annual leave request has been reviewed", emailMessage);
@@ -142,7 +146,7 @@
 
     void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AnnualLeaveEmployerDTO> args)
     {
-        // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
+
         switch (args.Data.Status)
         {
             case AnnualLeaveRequestStatus.Declined:

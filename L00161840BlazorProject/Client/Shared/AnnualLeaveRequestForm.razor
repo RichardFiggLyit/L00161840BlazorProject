@@ -48,7 +48,6 @@
 
         void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<AnnualLeaveRequest> args)
         {
-            // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
             switch (args.Data.Status)
             {
                 case AnnualLeaveRequestStatus.Declined:

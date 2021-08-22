@@ -15,6 +15,7 @@ namespace L00161840BlazorProject.Shared.Helpers
             else
                 return "€" + value.ToString("#,###,##0.00");
         }
+
         public static bool IsAdmin(this ClaimsPrincipal User)
         {
             return User.Claims.Where(x => x.Type == ClaimTypes.Role && x.Value == "Admin").FirstOrDefault() != null;
@@ -26,6 +27,7 @@ namespace L00161840BlazorProject.Shared.Helpers
             int.TryParse(employeeIdString, out employeeId);
             return employeeId;
         }
+
         public static string ToStandardString(this List<DateTime> dateTimes)
         {
             string output = "";

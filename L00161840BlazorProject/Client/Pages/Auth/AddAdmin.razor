@@ -32,7 +32,9 @@
         var inviteDetails = await inviteRepository.CreateInvite(invite);
         var url = Navigator.BaseUri + "register?InviteReference=" + inviteDetails.InviteReference;
         var company = await companyRepository.GetCompany();
-        await emailService.SendEmail("info@portal.com", Email, "Invite to payroll portal", String.Format("<html><p>Hi,</p><br/><p>Please click below to complete your registration to our employer portal as an administrator</p><a href=\"{0}\">{0}</a><p>{1} Payroll Portal</p></html>", url, company.Name));
+        await emailService.SendEmail("info@portal.com", Email, "Invite to payroll portal", String.Format("<html><p>Hi,</p><br/>" +
+            "<p>Please click below to complete your registration to our employer portal as an administrator</p><a href=\"{0}\">{0}</a><p>{1} Payroll Portal</p>" +
+            "</html>", url, company.Name));
         DialogService.Close();
     }
 }
