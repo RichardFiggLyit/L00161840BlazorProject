@@ -1,5 +1,6 @@
 ﻿@page "/payroll/view/{PayPeriodId:int}"
 @inject ICompanyRepository companyRepository
+@inject NotificationService notificationService
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin")]
 <h3>Payroll Summary<br /><br /></h3>
@@ -10,7 +11,7 @@
     <h4>Pay Date: @PayrollSummaryDTO.PayDate.ToString("dd/MM/yyyy")</h4>
     <h4 style="margin-bottom: 48px">Tax Year: @PayrollSummaryDTO.TaxYear&nbsp;&nbsp;Tax Period: @PayrollSummaryDTO.TaxPeriod</h4>
     <div>
-        <RadzenDataGrid AllowColumnResize="true" ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@PayrollSummaryDTO.Rows" TItem="PayrollSummaryDTO.Row" Style="margin-bottom: 30px; width: calc(100vw - 310px); height: calc(100vh - 330px); " >
+        <RadzenDataGrid AllowColumnResize="true" ColumnWidth="150px" AllowFiltering="true" AllowPaging="true" PageSize="25" AllowSorting="true" Data="@PayrollSummaryDTO.Rows" TItem="PayrollSummaryDTO.Row" Style="margin-bottom: 30px; width: calc(100vw - 310px); height: calc(100vh - 330px); ">
             <Columns>
                 <RadzenDataGridColumn TItem="PayrollSummaryDTO.Row" Filterable="false" Sortable="false" Frozen="true">
                     <Template Context="data">
@@ -130,6 +131,11 @@
     protected override async Task OnInitializedAsync()
     {
         PayrollSummaryDTO = await companyRepository.GetPayrollSummary(PayPeriodId);
+        if (PayrollSummaryDTO == null)
+        {
+            notificationService.Notify(NotificationSeverity.Error, "Error", $"Payroll summary Id {PayPeriodId} cannot be found.",10000);
+            navigationManager.NavigateTo("/payroll/overview");
+        }
     }
 
 }

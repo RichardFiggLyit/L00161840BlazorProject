@@ -1,13 +1,14 @@
 ﻿@page "/paygroups/edit/{PayGroupId:int}"
 @inject IPayGroupRepository payGroupRepository
 
+@inject NotificationService notificationService
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin")]
 
 <h3>Edit Pay Group</h3>
-@if (PayGroup!= null)
+@if (PayGroup != null)
 {
-<PayGroupForm PayGroup="PayGroup" OnValidSubmit="Edit" />
+    <PayGroupForm PayGroup="PayGroup" OnValidSubmit="Edit" />
 }
 
 
@@ -20,6 +21,11 @@
     protected override async Task OnInitializedAsync()
     {
         PayGroup = await payGroupRepository.GetPayGroupById(PayGroupId);
+        if (PayGroup == null)
+        {
+            notificationService.Notify(NotificationSeverity.Error, "Error", $"Pay Group Id {PayGroupId} cannot be found.", 10000);
+            navigationManager.NavigateTo("/company");
+        }
     }
 
     private async Task Edit()

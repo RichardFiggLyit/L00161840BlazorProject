@@ -66,6 +66,7 @@ namespace L00161840BlazorProject.Server.Controllers
             
             //var payItems = await context.PayItems.ToListAsync();
             var payPeriod = await context.PayPeriods.FirstOrDefaultAsync(x => x.Id == id);
+            if (payPeriod == null) return NotFound();
             var payGroup = await context.PayGroups.FirstOrDefaultAsync(x => x.Id == payPeriod.PayGroupId);
             var payDatum =  await context.PayDatum.Where(x => x.PayPeriodId == id).Include(x=>x.Employee).Include(x=>x.PayslipItems).ThenInclude(x=>x.PayItem).ToListAsync();
             var payItems = payDatum.Select(x => x.PayslipItems.Where(y => y.Amount != 0.0)).SelectMany(x=>x).Select(x=>x.PayItem).Distinct().ToList();

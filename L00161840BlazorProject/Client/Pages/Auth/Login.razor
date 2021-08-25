@@ -42,7 +42,8 @@
         {
             var userToken = await accountsRepository.Login(userInfo);
             await loginService.Login(userToken);
-            NotificationMessage notificationMessage = new NotificationMessage() { Detail = "Succesful login", Severity = NotificationSeverity.Success, Duration = 4000, Summary = "Welcome!" };
+            NotificationMessage notificationMessage = new NotificationMessage() { Detail = "Succesful login", 
+                Severity = NotificationSeverity.Success, Duration = 4000, Summary = "Welcome!" };
             NotificationService.Notify(notificationMessage);
             var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
 
@@ -58,7 +59,7 @@
         }
         catch (Exception ex)
         {
-            NotificationMessage notificationMessage = new NotificationMessage() { Detail = ex.Message, Severity = NotificationSeverity.Error, Duration = 4000, Summary = "Error" };
+            NotificationMessage notificationMessage = new NotificationMessage() { Detail = ex.Message, Severity = NotificationSeverity.Error, Duration = 10000, Summary = "Error" };
             NotificationService.Notify(notificationMessage);
 
         }

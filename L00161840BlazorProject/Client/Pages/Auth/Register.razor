@@ -84,11 +84,17 @@ else
                     userInfo.EmployeeId = invite.EmployeeId;
                 }
             }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Warning", $"Invite Reference is required. Please contact your administrator", 10000);
+                navigationManager.NavigateTo("/");
+            }
 
         }
         catch
         {
-            pageMessage = "Invite Reference is invalid! Please contact your administrator";
+            NotificationService.Notify(NotificationSeverity.Error, "Error", $"Invite Reference is invalid! Please contact your administrator", 10000);
+            navigationManager.NavigateTo("/");
         }
 
 

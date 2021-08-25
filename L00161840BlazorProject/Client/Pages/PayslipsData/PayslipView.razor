@@ -1,5 +1,7 @@
 ﻿@page "/payroll/payslip/{PayDataId:int}"
 @inject IEmployeeRepository employeeRepository
+@inject NotificationService notificationService
+@inject NavigationManager navigationManager
 @attribute [Authorize]
 @using System.Security.Claims
 @if (payslip != null)
@@ -241,8 +243,8 @@
 }
 @code {
 
-    [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
-    [Parameter] public int PayDataId { get; set; }
+        [CascadingParameter] private Task<AuthenticationState> AuthenticationState { get; set; }
+        [Parameter] public int PayDataId { get; set; }
     private int payPeriodId = 0;
     private int employeeId = 0;
     private PayslipDTO payslip;
@@ -256,16 +258,24 @@
         try
         {
             payslip = await employeeRepository.GetPayslip(PayDataId);
-            payPeriodId = payslip.PayPeriodId;
-            employeeId = payslip.EmployeeId;
-            var authState = await AuthenticationState;
-            isAdmin = authState.User.IsAdmin();
+            if (payslip == null)
+            {
+                notificationService.Notify(NotificationSeverity.Error, "Error", $"Payslip Id {PayDataId} cannot be found.", 10000);
+                navigationManager.NavigateTo("/");
+            }
+            else
+            {
+                payPeriodId = payslip.PayPeriodId;
+                employeeId = payslip.EmployeeId;
+                var authState = await AuthenticationState;
+                isAdmin = authState.User.IsAdmin();
+            }
 
         }
         catch
         {
-            payslip = null;
-            pageMessage = "Error - Data could not be loaded!";
+            notificationService.Notify(NotificationSeverity.Error, "Error", $"Payslip data cannot be loaded.", 10000);
+            navigationManager.NavigateTo("/");
         }
 
     }

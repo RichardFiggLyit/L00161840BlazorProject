@@ -38,7 +38,9 @@ namespace L00161840BlazorProject.Server.Controllers
         public async Task<ActionResult<UserToken>> CreateUser([FromBody] UserInfo model)
         {
             var user = new IdentityUser { UserName = model.UserName.Replace(" ","_"), Email = model.Email};
-            
+            var check = await _userManager.FindByEmailAsync(model.Email);
+            if (check != null)
+                return BadRequest("Email address already registered to another user");
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
@@ -50,7 +52,11 @@ namespace L00161840BlazorProject.Server.Controllers
             }
             else
             {
-                return BadRequest("Username or password invalid");
+                List<string> Errors = new List<string>();
+                foreach (var error in result.Errors)
+                    Errors.Add(error.Description);
+                string errorMessage = String.Join("\r\n", Errors);
+                return BadRequest(errorMessage);
             }
 
         }

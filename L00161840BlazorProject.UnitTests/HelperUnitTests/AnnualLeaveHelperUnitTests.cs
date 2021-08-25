@@ -32,6 +32,7 @@ namespace L00161840BlazorProject.UnitTests.HelperUnitTests
             };
 
         }
+
         [TestMethod]
         public void CheckOverlaps_StartDateOverlaps_ReturnTrue()
         {
@@ -162,6 +163,7 @@ namespace L00161840BlazorProject.UnitTests.HelperUnitTests
             Assert.AreEqual(expectedResult, actualResult);
         }
 
+
         [TestMethod]
         [ExpectedException(typeof(Exception),
     "Start date cannot be greater than end date.")]
@@ -177,20 +179,6 @@ namespace L00161840BlazorProject.UnitTests.HelperUnitTests
 
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception),
-"End date cannot be less than the start date.")]
-        public void GetWorkingDates_EndBeforeStart_Exception()
-        {
-
-            //Arrange
-            var startDate = new DateTime(2021, 08, 09);
-            var endDate = new DateTime(2021, 08, 08);
-
-            //Act
-            var actualDates = AnnualLeaveHelper.GetWorkingDates(startDate, endDate);
-
-        }
 
         [TestMethod]
         public void GetTaxYear_Start2021End2021_OneYear()
@@ -249,6 +237,42 @@ namespace L00161840BlazorProject.UnitTests.HelperUnitTests
             Assert.AreEqual(expectedResult.ToStandardString(), actualResult.ToStandardString());
             Console.WriteLine(actualResult.ToStandardString());
         }
+        [TestMethod]
+        public void GetStartOfDay_CorrectValue()
+        {
 
+            //Arrange
+            var testDate = new DateTime(2021, 12, 24, 06, 06, 06);
+            var expectedResult = new DateTime(2021, 12, 24, 00, 00, 00);
+            DateTime actualResult;
+
+
+            //Act
+            actualResult = testDate.GetStartOfDay();
+
+
+            //Assert
+            Assert.AreEqual(expectedResult, actualResult);
+        }
+
+            [TestMethod]
+            public void GetEndOfDay_CorrectValue()
+            {
+
+                //Arrange
+                var testDate = new DateTime(2021, 12, 24, 06, 06, 06);
+                var expectedResult = new DateTime(2021, 12, 24, 23, 59, 59);
+                DateTime actualResult;
+
+
+                //Act
+                actualResult = testDate.GetEndOfDay();
+
+
+                //Assert
+                Assert.AreEqual(expectedResult, actualResult);
+
+            }
+        
     }
 }

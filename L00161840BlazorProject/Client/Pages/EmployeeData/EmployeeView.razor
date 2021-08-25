@@ -91,7 +91,7 @@ else
         if (!isAdmin && userEmployeeId != EmployeeId)
         {
 
-            notificationService.Notify(NotificationSeverity.Warning, "Warning", "You are not authorised to view this employee");
+            notificationService.Notify(NotificationSeverity.Warning, "Warning", "You are not authorised to view this employee", 10000);
             navigationManager.NavigateTo("/");
         }
         else
@@ -105,11 +105,11 @@ else
             catch
             {
                 Employee = null;
-                notificationService.Notify(NotificationSeverity.Error, "Error", "Cannot load employee. Check access rights or contact System Administrator");
+                notificationService.Notify(NotificationSeverity.Error, "Error", "Cannot load employee. Check access rights or contact System Administrator", 10000);
                 navigationManager.NavigateTo("/");
             }
         }
-        StateHasChanged();
+
     }
 
     protected override async Task OnParametersSetAsync()

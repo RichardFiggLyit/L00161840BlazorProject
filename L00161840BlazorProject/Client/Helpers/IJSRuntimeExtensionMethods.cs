@@ -8,27 +8,6 @@ namespace L00161840BlazorProject.Client.Helpers
 {
     public static class IJSRuntimeExtensionMethods
     {
-        public static async ValueTask InitializeInactivityTimer<T>(this IJSRuntime js,
-            DotNetObjectReference<T> dotNetObjectReference) where T : class
-        {
-            await js.InvokeVoidAsync("initializeInactivityTimer", dotNetObjectReference);
-        }
-
-        public static async ValueTask<bool> Confirm(this IJSRuntime js, string message)
-        {
-            await js.InvokeVoidAsync("console.log", "example message");
-            return await js.InvokeAsync<bool>("confirm", message);
-        }
-
-        public static async ValueTask MyFunction(this IJSRuntime js, string message)
-        {
-            await js.InvokeVoidAsync("my_function", message);
-        }
-
-        public static async ValueTask AlertMessage(this IJSRuntime js, string message)
-        {
-            await js.InvokeAsync<object>("alert", message);
-        }
 
         public static ValueTask<object> SetInLocalStorage(this IJSRuntime js, string key, string content)
  => js.InvokeAsync<object>(

@@ -60,6 +60,7 @@ namespace L00161840BlazorProject.Server.Controllers
         public async Task<ActionResult> SetAdmin(SetAdminDTO setAdminDTO)
         {
             var user = await userManager.FindByIdAsync(setAdminDTO.UserId);
+            if (user == null) return NotFound();
             var role = await context.UserClaims.Where(x => x.UserId == setAdminDTO.UserId && x.ClaimType == ClaimTypes.Role && x.ClaimValue == "Admin").FirstOrDefaultAsync();
             if (role != null)
             {
@@ -77,6 +78,7 @@ namespace L00161840BlazorProject.Server.Controllers
         public async Task<ActionResult<bool>> GetAdmin(string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
             var role = await context.UserClaims.Where(x => x.UserId == userId && x.ClaimType == ClaimTypes.Role && x.ClaimValue == "Admin").FirstOrDefaultAsync();
             return role != null;
         }
@@ -86,6 +88,7 @@ namespace L00161840BlazorProject.Server.Controllers
         {
             int employeeId = 0;
             var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
             var role = await context.UserClaims.Where(x => x.UserId == userId && x.ClaimType == EMPLOYEE_CLAIM).FirstOrDefaultAsync();
             if (role!= null)
             {
@@ -121,6 +124,7 @@ namespace L00161840BlazorProject.Server.Controllers
         public async Task<ActionResult<UserNameDTO>> GetUserName(string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
             UserNameDTO userNameDTO = new UserNameDTO() { UserId = userId, UserName = user.UserName };
             return userNameDTO;
         }

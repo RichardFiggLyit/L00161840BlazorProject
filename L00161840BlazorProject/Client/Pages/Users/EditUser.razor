@@ -1,6 +1,8 @@
 ﻿@page "/users/edit/{userId}"
 @inject IUsersRepository usersRepository
 @inject IJSRuntime js
+@inject NotificationService NotificationService
+@inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin")]
 
 <h3>Edit User</h3>
@@ -41,7 +43,7 @@
     private int employeeIdDB;
     private List<UserEmployeeDTO> employees = null;
 
-    protected override async Task OnInitializedAsync()
+    private async Task LoadData()
     {
         isAdmin = await usersRepository.GetAdmin(UserId);
         isAdminDB = isAdmin;
@@ -49,12 +51,27 @@
         employeeIdDB = employeeId;
         employees = await usersRepository.GetEmployees();
         var user = await usersRepository.GetUserName(UserId);
+        if (user == null)
+            throw new ApplicationException($"User id {UserId} cannot be found");
         userName = user.UserName;
         userNameDB = userName;
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadData();
+            }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", ex.Message);
+            navigationManager.NavigateTo("/users");
+        }
+    }
     private async Task UpdateUser()
     {
-        if (isAdmin!= isAdminDB)
+        if (isAdmin != isAdminDB)
         {
             SetAdminDTO setAdminDTO = new SetAdminDTO() { IsAdmin = isAdmin, UserId = UserId };
             await usersRepository.SetAdmin(setAdminDTO);

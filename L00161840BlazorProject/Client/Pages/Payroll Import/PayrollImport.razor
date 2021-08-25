@@ -3,10 +3,11 @@
 @using System.Text.RegularExpressions
 @using System.IO
 @inject NotificationService NotificationService
+@inject NavigationManager navigationManager
 @inject IPayGroupRepository payGroupRepository
 @inject IPayItemRepository payItemRepository
 @inject IPayPeriodRepository payPeriodRepository
-@inject NavigationManager navigationManager
+
 @inject IEmployeeRepository employeeRepository
 @inject IPayDataRepository payDataRepository
 @inject IPayslipItemRepository payslipItemRepository
@@ -128,9 +129,9 @@
                             {
                                 <b>Item unmapped!</b>
                             }
-                            @if (Items.Where(x=>x == Items[row]).Count() > 1)
+                            @if (Items.Where(x => x == Items[row]).Count() > 1)
                             {
-                        <b>@PayItemsDB.Where(x=>x.Id == Items[row]).FirstOrDefault() has already been mapped!</b>
+                                <b>@PayItemsDB.Where(x => x.Id == Items[row]).FirstOrDefault() has already been mapped!</b>
                             }
                         </td>
 
@@ -221,7 +222,7 @@
         }
         catch (Exception ex)
         {
-            NotificationService.Notify(NotificationSeverity.Error, "Error", ex.Message);
+            NotificationService.Notify(NotificationSeverity.Error, "Error", ex.Message, 15000);
         }
     }
     private async Task RunDataUpload()
@@ -284,7 +285,7 @@
                 }
 
             }
-            if (!string.IsNullOrWhiteSpace(employee.PPSN) ||!string.IsNullOrWhiteSpace(employee.PayrollReference))
+            if (!string.IsNullOrWhiteSpace(employee.PPSN) || !string.IsNullOrWhiteSpace(employee.PayrollReference))
             {
 
 

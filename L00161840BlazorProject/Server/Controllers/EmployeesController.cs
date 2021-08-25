@@ -34,7 +34,9 @@ namespace L00161840BlazorProject.Server.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<ActionResult<List<EmployeeOverviewDTO>>> Get()
         {
-            var employees = await context.Employees.Include(x => x.Invite).OrderBy(y => y.Surname).ThenBy(z => z.Forename).Select(x => new EmployeeOverviewDTO()
+
+
+            var employees = await context.Employees.Include(x => x.Invite).Select(x => new EmployeeOverviewDTO()
             {
                 Forename = x.Forename,
                 Surname = x.Surname,
@@ -45,7 +47,7 @@ namespace L00161840BlazorProject.Server.Controllers
                 Invite = x.Invite,
             }).ToListAsync();
 
-            return employees;
+            return employees.OrderBy(x=>x.Surname).ThenBy(x=>x.Forename).ToList();
         }
 
         [HttpGet("{id}")]
